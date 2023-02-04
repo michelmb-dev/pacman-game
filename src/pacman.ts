@@ -10,6 +10,8 @@ import {
 import type { Ghost } from "./ghosts"
 
 const pacmanFrames: HTMLImageElement = document.querySelector("#animation")!
+const eatSound = new Audio("sounds/eat_ball.mp3")
+const eatFruitSound = new Audio("sounds/eat_fruit.mp3")
 let score = 0
 
 /**
@@ -106,7 +108,14 @@ export class Pacman {
       for (let j = 0; j < MAP[0].length; j++) {
         if (MAP[i][j] === 2 && this.getMapX() === j && this.getMapY() === i) {
           MAP[i][j] = 3
-          score++
+          score += 10
+          eatSound.volume = 0.2
+          eatSound.play()
+        }
+        if (MAP[i][j] === 4 && this.getMapX() === j && this.getMapY() === i) {
+          MAP[i][j] = 3
+          score += 200
+          eatFruitSound.play()
         }
       }
     }
