@@ -84,12 +84,21 @@ const update = (): void => {
 const drawFoods = (): void => {
   for (let i = 0; i < MAP.length; i++) {
     for (let j = 0; j < MAP[0].length; j++) {
-      if (MAP[i][j] == 2) {
+      if (MAP[i][j] === 2) {
         creatRect(
           j * blockSize + blockSize / 3,
           i * blockSize + blockSize / 3,
           blockSize / 3,
           blockSize / 3,
+          "#FEB897"
+        )
+      }
+      if (MAP[i][j] === 4) {
+        creatRect(
+          j * blockSize + blockSize / 4,
+          i * blockSize + blockSize / 4,
+          blockSize / 2,
+          blockSize / 2,
           "#FEB897"
         )
       }
@@ -155,7 +164,7 @@ const createGhosts = (): void => {
   for (let i = 0; i < ghostCount; i++) {
     let newGhost = new Ghost(
       9 * blockSize + (i % 2 == 0 ? 0 : 1) * blockSize,
-      10 * blockSize + (i % 2 == 0 ? 0 : 1) * blockSize,
+      11 * blockSize + (i % 2 == 0 ? 0 : 1) * blockSize,
       blockSize - 2,
       blockSize - 2,
       pacman.speed / 2,
