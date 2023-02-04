@@ -20,6 +20,9 @@ type Queue = {
   moves: number[]
 }
 
+/**
+ *  Create a Ghost for the game
+ */
 export class Ghost {
   direction: number
   randomTargetIndex: number
@@ -59,7 +62,13 @@ export class Ghost {
     }, 10000)
   }
 
-  isInRange(pacman: Pacman) {
+  /**
+   * If the distance between the ghost and Pacman is less than or equal to the ghost's range, then
+   * return true
+   * @param {Pacman} pacman - Pacman - the pacman object
+   * @returns A boolean value.
+   */
+  isInRange(pacman: Pacman): boolean {
     let xDistance = Math.abs(pacman.getMapX() - this.getMapX())
     let yDistance = Math.abs(pacman.getMapY() - this.getMapY())
     if (
@@ -70,13 +79,22 @@ export class Ghost {
     return false
   }
 
-  changeRandomDirection() {
+  /**
+   * It adds 1 to the randomTargetIndex, and then sets the randomTargetIndex to the remainder of the
+   * randomTargetIndex divided by 4
+   */
+  changeRandomDirection(): void {
     let addition = 1
     this.randomTargetIndex += addition
     this.randomTargetIndex = this.randomTargetIndex % 4
   }
 
-  moveProcess(pacman: Pacman) {
+  /**
+   * If the ghost is in range of Pacman, it will move towards Pacman, otherwise it will move towards a
+   * random target
+   * @param {Pacman} pacman - Pacman - the pacman object
+   */
+  moveProcess(pacman: Pacman): void {
     if (this.isInRange(pacman)) {
       this.target = pacman
     } else {
@@ -86,11 +104,15 @@ export class Ghost {
     this.moveForwards()
     if (this.checkCollisions()) {
       this.moveBackwards()
-      return
     }
   }
 
-  moveBackwards() {
+  /**
+   * If the direction is 4, then move the x coordinate to the left by the speed. If the direction is 3,
+   * then move the y coordinate up by the speed. If the direction is 2, then move the x coordinate to
+   * the right by the speed. If the direction is 1, then move the y coordinate down by the speed
+   */
+  moveBackwards(): void {
     switch (this.direction) {
       case 4: // Right
         this.x -= this.speed
@@ -107,7 +129,11 @@ export class Ghost {
     }
   }
 
-  moveForwards() {
+  /**
+   * If the direction is 4, then move right, if it's 3, then move up, if it's 2, then move left, and if
+   * it's 1, then move down.
+   */
+  moveForwards(): void {
     switch (this.direction) {
       case 4: // Right
         this.x += this.speed
@@ -124,7 +150,12 @@ export class Ghost {
     }
   }
 
-  checkCollisions() {
+  /**
+   * If any of the four corners of the player are inside a block, then the player is colliding with a
+   * block
+   * @returns A boolean value.
+   */
+  checkCollisions(): boolean {
     let isCollided = false
     if (
       MAP[Math.floor(this.y / blockSize)][Math.floor(this.x / blockSize)] ==
@@ -144,7 +175,13 @@ export class Ghost {
     return isCollided
   }
 
-  changeDirectionIfPossible() {
+  /**
+   * If the player is in the same block as the ghost, the ghost will try to move in a direction that
+   * will take it closer to the player. If it can't move in that direction, it will move in the
+   * direction it was already moving
+   * @returns The direction of the ghost.
+   */
+  changeDirectionIfPossible(): void {
     let tempDirection = this.direction
     this.direction = this.calculateNewDirection(
       MAP,
@@ -153,7 +190,6 @@ export class Ghost {
     )
     if (typeof this.direction == "undefined") {
       this.direction = tempDirection
-      return
     }
     if (
       this.getMapY() != this.getMapYRightSide() &&
@@ -176,7 +212,14 @@ export class Ghost {
     }
   }
 
-  calculateNewDirection(map: number[][], destX: number, destY: number) {
+  /**
+   * It takes a map, a destination x and y, and returns the direction to move to get to the destination
+   * @param {number[][]} map - number[][] - The map of the game.
+   * @param {number} destX - The x coordinate of the destination
+   * @param {number} destY - The y coordinate of the destination
+   * @returns The direction the player should move in to get to the destination.
+   */
+  calculateNewDirection(map: number[][], destX: number, destY: number): number {
     let mp: typeof MAP = []
     for (let i = 0; i < map.length; i++) {
       mp[i] = map[i].slice()
@@ -208,6 +251,12 @@ export class Ghost {
     return 1 // direction
   }
 
+  /**
+   * It takes a node and returns all the nodes that are adjacent to it
+   * @param {Queue} poped - The current node that we are looking at.
+   * @param mp - the map
+   * @returns the shortest path from the start to the end.
+   */
   addNeighbors(poped: Queue, mp: typeof MAP) {
     let queue = []
     let numOfRows = mp.length
@@ -252,32 +301,51 @@ export class Ghost {
     return queue
   }
 
-  getMapX() {
+  /**
+   * It returns the mapX value of the player
+   * @returns The x coordinate of the player on the map.
+   */
+  getMapX(): number {
     let mapX = Math.floor(this.x / blockSize)
     return mapX
   }
 
-  getMapY() {
+  /**
+   * It returns the y coordinate of the block that the player is currently standing on
+   * @returns The y coordinate of the player on the map.
+   */
+  getMapY(): number {
     let mapY = Math.floor(this.y / blockSize)
     return mapY
   }
 
-  getMapXRightSide() {
+  /**
+   * It returns the mapX of the right side of the player
+   * @returns The x coordinate of the right side of the player.
+   */
+  getMapXRightSide(): number {
     let mapX = Math.floor((this.x * 0.99 + blockSize) / blockSize)
     return mapX
   }
 
-  getMapYRightSide() {
+  /**
+   * It returns the mapY coordinate of the right side of the player
+   * @returns The y coordinate of the right side of the player.
+   */
+  getMapYRightSide(): number {
     let mapY = Math.floor((this.y * 0.99 + blockSize) / blockSize)
     return mapY
   }
 
-  changeAnimation() {
+  changeAnimation(): void {
     this.currentFrame =
       this.currentFrame == this.frameCount ? 1 : this.currentFrame + 1
   }
 
-  draw() {
+  /**
+   * The draw function draws the ghost image on the canvas
+   */
+  draw(): void {
     gameContext.save()
     gameContext.drawImage(
       ghostFrames,

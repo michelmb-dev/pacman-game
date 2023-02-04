@@ -10,7 +10,11 @@ import {
 import type { Ghost } from "./ghosts"
 
 const pacmanFrames: HTMLImageElement = document.querySelector("#animation")!
+let score = 0
 
+/**
+ *  Create Pacman player
+ */
 export class Pacman {
   direction: number
   nextDirection: number
@@ -38,16 +42,23 @@ export class Pacman {
     }, 100)
   }
 
-  moveProcess() {
+  /**
+   * If the direction can be changed, change it, then move forwards, then if there's a collision, move
+   * backwards.
+   */
+  moveProcess(): void {
     this.changeDirectionIfPossible()
     this.moveForwards()
     if (this.checkCollisions()) {
       this.moveBackwards()
-      return
     }
   }
 
-  moveBackwards() {
+  /**
+   * If the direction is right, then move left. If the direction is up, then move down. If the
+   * direction is left, then move right. If the direction is down, then move up
+   */
+  moveBackwards(): void {
     switch (this.direction) {
       case DIRECTION_RIGHT: // Right
         this.x -= this.speed
@@ -64,7 +75,12 @@ export class Pacman {
     }
   }
 
-  moveForwards() {
+  /**
+   * If the direction is right, increase the x position by the speed, if the direction is up, decrease
+   * the y position by the speed, if the direction is left, decrease the x position by the speed, if
+   * the direction is down, increase the y position by the speed.
+   */
+  moveForwards(): void {
     switch (this.direction) {
       case DIRECTION_RIGHT: // Right
         this.x += this.speed
@@ -81,7 +97,11 @@ export class Pacman {
     }
   }
 
-  eat(score: number): number {
+  /**
+   * If the player is on the same tile as a food item, then the food item is eaten and the score is
+   * increased
+   */
+  eat(): void {
     for (let i = 0; i < MAP.length; i++) {
       for (let j = 0; j < MAP[0].length; j++) {
         if (MAP[i][j] === 2 && this.getMapX() === j && this.getMapY() === i) {
@@ -90,9 +110,13 @@ export class Pacman {
         }
       }
     }
-    return score
   }
 
+  /**
+   * If any of the four corners of the player are inside a block, then the player is colliding with a
+   * block
+   * @returns A boolean value.
+   */
   checkCollisions(): boolean {
     let isCollided = false
     if (
@@ -113,6 +137,11 @@ export class Pacman {
     return isCollided
   }
 
+  /**
+   * If the player's map coordinates are the same as any of the ghosts' map coordinates, return true
+   * @param {Ghost[]} ghosts - Ghost[] - this is an array of Ghost objects.
+   * @returns A boolean value.
+   */
   checkGhostCollision(ghosts: Ghost[]): boolean {
     for (let i = 0; i < ghosts.length; i++) {
       if (
@@ -125,6 +154,11 @@ export class Pacman {
     return false
   }
 
+  /**
+   * If the snake is not already moving in the direction it wants to move in, it tries to move in that
+   * direction, and if it doesn't collide with anything, it keeps moving in that direction
+   * @returns The return value is the value of the last expression evaluated.
+   */
   changeDirectionIfPossible(): void {
     if (this.direction == this.nextDirection) return
     let tempDirection = this.direction
@@ -138,32 +172,57 @@ export class Pacman {
     }
   }
 
+  /**
+   * It returns the mapX value of the player
+   * @returns The x coordinate of the player on the map.
+   */
   getMapX(): number {
     let mapX = Math.floor(this.x / blockSize)
     return mapX
   }
 
+  /**
+   * This function returns the y-coordinate of the block that the player is currently standing on
+   * @returns The y coordinate of the player on the map.
+   */
   getMapY(): number {
     let MAPY = Math.floor(this.y / blockSize)
     return MAPY
   }
 
+  /**
+   * It returns the x coordinate of the right side of the player.
+   * @returns The right side of the player's x position.
+   */
   getMapXRightSide(): number {
     let MAPX = Math.floor((this.x * 0.99 + blockSize) / blockSize)
     return MAPX
   }
 
+  /**
+   * It returns the y coordinate of the right side of the player
+   * @returns The y coordinate of the right side of the player.
+   */
   getMapYRightSide(): number {
     let MapY = Math.floor((this.y * 0.99 + blockSize) / blockSize)
     return MapY
   }
 
-  changeAnimation() {
+  /**
+   * If the current frame is equal to the total number of frames, set the current frame to 1,
+   * otherwise, add 1 to the current frame
+   */
+  changeAnimation(): void {
     this.currentFrame =
       this.currentFrame === this.frameCount ? 1 : this.currentFrame + 1
   }
 
-  draw() {
+  /**
+   * We save the current state of the canvas, translate the canvas to the center of the Pacman, rotate
+   * the canvas to the direction of the Pacman, translate the canvas back to the original position,
+   * draw the Pacman, and restore the canvas to its original state
+   */
+  draw(): void {
     gameContext.save()
     gameContext.translate(this.x + blockSize / 2, this.y + blockSize / 2)
     gameContext.rotate((this.direction * 90 * Math.PI) / 180)
@@ -183,7 +242,11 @@ export class Pacman {
   }
 }
 
-export const drawRemainingLives = (lives: number) => {
+/**
+ * It draws the remaining lives of the player
+ * @param {number} lives - number - the number of lives the player has left
+ */
+export const drawRemainingLives = (lives: number): void => {
   gameContext.font = "20px Emulogic"
   gameContext.fillStyle = "white"
   gameContext.fillText("Lives: ", 220, blockSize * (MAP.length + 1))
@@ -201,4 +264,13 @@ export const drawRemainingLives = (lives: number) => {
       blockSize
     )
   }
+}
+
+/**
+ * It draws the score on the canvas
+ */
+export const drawScore = (): void => {
+  gameContext.font = "20px Emulogic"
+  gameContext.fillStyle = "white"
+  gameContext.fillText("Score: " + score, 0, blockSize * (MAP.length + 1))
 }

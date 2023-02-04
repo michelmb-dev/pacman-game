@@ -12,4 +12,4 @@ Reproduction du jeu Pac-Man pour m'exercer en Typescript.
 
 ## Lancement du projet (développement)
 
--npm run dev
+- npm run dev
