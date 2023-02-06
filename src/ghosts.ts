@@ -5,6 +5,7 @@ import {
   DIRECTION_UP,
   MAP,
   blockSize,
+  canvas,
   gameContext,
   randomTargetsForGhosts,
 } from "./utils"
@@ -137,15 +138,27 @@ export class Ghost {
     switch (this.direction) {
       case 4: // Right
         this.x += this.speed
+        if (this.x >= canvas.width) {
+          this.x = 0
+        }
         break
       case 3: // Up
         this.y -= this.speed
+        if (this.y < 0) {
+          this.y = canvas.height - this.height
+        }
         break
       case 2: // Left
         this.x -= this.speed
+        if (this.x < 0) {
+          this.x = canvas.width - this.width
+        }
         break
       case 1: // Bottom
         this.y += this.speed
+        if (this.y >= canvas.height) {
+          this.y = 0
+        }
         break
     }
   }
@@ -342,6 +355,19 @@ export class Ghost {
       this.currentFrame == this.frameCount ? 1 : this.currentFrame + 1
   }
 
+  createArcForDebug(): void {
+    gameContext.beginPath()
+    gameContext.strokeStyle = "red"
+    gameContext.arc(
+      this.x + blockSize / 2,
+      this.y + blockSize / 2,
+      this.range * blockSize,
+      0,
+      2 * Math.PI
+    )
+    gameContext.stroke()
+  }
+
   /**
    * The draw function draws the ghost image on the canvas
    */
@@ -355,22 +381,9 @@ export class Ghost {
       this.imageHeight,
       this.x,
       this.y,
-      this.width,
-      this.height
+      this.width + 2,
+      this.height + 2
     )
     gameContext.restore()
-
-    // debug arc of pacman detection
-
-    // gameContext.beginPath()
-    // gameContext.strokeStyle = "red"
-    // gameContext.arc(
-    //   this.x + blockSize / 2,
-    //   this.y + blockSize / 2,
-    //   this.range * blockSize,
-    //   0,
-    //   2 * Math.PI
-    // )
-    // gameContext.stroke()
   }
 }
