@@ -5,9 +5,25 @@
 }
 
 body {
-  background: #000;
+  font-family: sans-serif;
+  background: #000000;
+  color: white;
   display: flex;
+  flex-direction: column;
   height: 100vh;
   justify-content: center;
   align-items: center;
+}
+
+h1 {
+  margin-block: 15px;
+}
+
+.info {
+  margin-block: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 575px;
 }

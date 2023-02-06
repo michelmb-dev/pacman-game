@@ -17,7 +17,7 @@ let fps = 30
 let lives = 3
 let wallColor = "#662DCA"
 let wallInnerColor = "#000000"
-let wallSpaceWidth = blockSize / 1.2
+let wallSpaceWidth = blockSize / 1.6
 let wallOffset = (blockSize - wallSpaceWidth) / 2
 
 // Ghosts Variables
@@ -165,8 +165,8 @@ const createGhosts = (): void => {
     let newGhost = new Ghost(
       9 * blockSize + (i % 2 == 0 ? 0 : 1) * blockSize,
       11 * blockSize + (i % 2 == 0 ? 0 : 1) * blockSize,
-      blockSize - 2,
-      blockSize - 2,
+      blockSize - 3,
+      blockSize - 3,
       pacman.speed / 2,
       ghostImageLocations[i % 4].x,
       ghostImageLocations[i % 4].y,
@@ -217,7 +217,6 @@ setInterval(gameLoop, 1000 / fps)
 // It's listening for keydown events and then setting the nextDirection property of the pacman object.
 window.addEventListener("keydown", (event) => {
   let k = event.keyCode
-  console.log("key => " + k)
   setTimeout(() => {
     if (k == 37 || k == 81) {
       // left arrow or q

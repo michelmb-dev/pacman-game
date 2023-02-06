@@ -9,10 +9,21 @@
 </head>
 
 <body>
-  <canvas id="canvas" width="500" height="500"></canvas>
+  <h1>PACMAN GAME</h1>
+  <canvas id="canvas" width="575" height="575"></canvas>
+  <div class="info">
+    <div class="lives">
+      <h2>Lives: <span id="lives"></span></h2>
+
+    </div>
+    <div class="score">
+      <h2>Score: <span id="score"></span></h2>
+
+    </div>
+  </div>
   <div style="display:none;">
-    <img id="animation" src="assets/pacman.png" width="140" height="20">
-    <img id="ghosts" src="assets/ghosts.png" width="124" height="116">
+    <img id="animation" src="assets/pacman.png">
+    <img id="ghosts" src="assets/ghosts.png">
   </div>
   <script type="module" src="/src/main.ts"></script>
 </body>
