@@ -6,6 +6,7 @@ import {
   MAP,
   gameContext,
   blockSize,
+  canvas,
 } from "./utils"
 import type { Ghost } from "./ghosts"
 
@@ -86,15 +87,27 @@ export class Pacman {
     switch (this.direction) {
       case DIRECTION_RIGHT: // Right
         this.x += this.speed
+        if (this.x >= canvas.width) {
+          this.x = 0
+        }
         break
       case DIRECTION_UP: // Up
         this.y -= this.speed
+        if (this.y < 0) {
+          this.y = canvas.height - this.height
+        }
         break
       case DIRECTION_LEFT: // Left
         this.x -= this.speed
+        if (this.x < 0) {
+          this.x = canvas.width - this.width
+        }
         break
       case DIRECTION_BOTTOM: // Bottom
         this.y += this.speed
+        if (this.y >= canvas.height) {
+          this.y = 0
+        }
         break
     }
   }
@@ -195,8 +208,8 @@ export class Pacman {
    * @returns The y coordinate of the player on the map.
    */
   getMapY(): number {
-    let MAPY = Math.floor(this.y / blockSize)
-    return MAPY
+    let mapY = Math.floor(this.y / blockSize)
+    return mapY
   }
 
   /**
@@ -204,8 +217,8 @@ export class Pacman {
    * @returns The right side of the player's x position.
    */
   getMapXRightSide(): number {
-    let MAPX = Math.floor((this.x * 0.99 + blockSize) / blockSize)
-    return MAPX
+    let mapX = Math.floor((this.x * 0.99 + blockSize) / blockSize)
+    return mapX
   }
 
   /**
@@ -213,8 +226,8 @@ export class Pacman {
    * @returns The y coordinate of the right side of the player.
    */
   getMapYRightSide(): number {
-    let MapY = Math.floor((this.y * 0.99 + blockSize) / blockSize)
-    return MapY
+    let mapY = Math.floor((this.y * 0.99 + blockSize) / blockSize)
+    return mapY
   }
 
   /**
@@ -256,22 +269,9 @@ export class Pacman {
  * @param {number} lives - number - the number of lives the player has left
  */
 export const drawRemainingLives = (lives: number): void => {
-  gameContext.font = "20px Emulogic"
-  gameContext.fillStyle = "white"
-  gameContext.fillText("Lives: ", 220, blockSize * (MAP.length + 1))
-
-  for (let i = 0; i < lives; i++) {
-    gameContext.drawImage(
-      pacmanFrames,
-      2 * blockSize,
-      0,
-      blockSize,
-      blockSize,
-      350 + i * blockSize,
-      blockSize * MAP.length + 2,
-      blockSize,
-      blockSize
-    )
+  const displayLives = document.querySelector("#lives")!
+  for (let i = 0; i <= lives; i++) {
+    displayLives!.innerHTML = lives.toString()
   }
 }
 
@@ -279,7 +279,6 @@ export const drawRemainingLives = (lives: number): void => {
  * It draws the score on the canvas
  */
 export const drawScore = (): void => {
-  gameContext.font = "20px Emulogic"
-  gameContext.fillStyle = "white"
-  gameContext.fillText("Score: " + score, 0, blockSize * (MAP.length + 1))
+  const displayScore = document.querySelector("#score")!
+  displayScore.innerHTML = score.toString()
 }
