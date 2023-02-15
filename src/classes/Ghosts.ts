@@ -8,8 +8,8 @@ import {
   canvas,
   gameContext,
   randomTargetsForGhosts,
-} from "./utils"
-import type { Pacman } from "./pacman"
+} from "../utils"
+import type { Pacman } from "./Pacman"
 
 const ghostFrames: HTMLImageElement = document.querySelector("#ghosts")!
 
@@ -58,9 +58,7 @@ export class Ghost {
     this.target = randomTargetsForGhosts[this.randomTargetIndex]
     this.frameCount = 7
     this.currentFrame = 1
-    setInterval(() => {
-      this.changeRandomDirection()
-    }, 10000)
+    this.changeRandomDirection()
   }
 
   /**
@@ -72,12 +70,9 @@ export class Ghost {
   isInRange(pacman: Pacman): boolean {
     let xDistance = Math.abs(pacman.getMapX() - this.getMapX())
     let yDistance = Math.abs(pacman.getMapY() - this.getMapY())
-    if (
+    return (
       Math.sqrt(xDistance * xDistance + yDistance * yDistance) <= this.range
-    ) {
-      return true
-    }
-    return false
+    )
   }
 
   /**
@@ -169,7 +164,6 @@ export class Ghost {
    * @returns A boolean value.
    */
   checkCollisions(): boolean {
-    let isCollided = false
     if (
       MAP[Math.floor(this.y / blockSize)][Math.floor(this.x / blockSize)] ==
         1 ||
@@ -183,9 +177,9 @@ export class Ghost {
         Math.floor(this.x / blockSize + 0.9999)
       ] == 1
     ) {
-      isCollided = true
+      return true
     }
-    return isCollided
+    return false
   }
 
   /**
@@ -350,6 +344,10 @@ export class Ghost {
     return mapY
   }
 
+  /**
+   * If the current frame is equal to the total number of frames, set the current frame to 1,
+   * otherwise, add 1 to the current frame
+   */
   changeAnimation(): void {
     this.currentFrame =
       this.currentFrame == this.frameCount ? 1 : this.currentFrame + 1
@@ -384,6 +382,7 @@ export class Ghost {
       this.width + 2,
       this.height + 2
     )
+    this.createArcForDebug()
     gameContext.restore()
   }
 }

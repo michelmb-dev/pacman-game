@@ -7,13 +7,10 @@ import {
   gameContext,
   blockSize,
   canvas,
-} from "./utils"
-import type { Ghost } from "./ghosts"
+} from "../utils"
+import type { Ghost } from "./Ghosts"
 
 const pacmanFrames: HTMLImageElement = document.querySelector("#animation")!
-const eatSound = new Audio("sounds/eat_ball.mp3")
-const eatFruitSound = new Audio("sounds/eat_fruit.mp3")
-let score = 0
 
 /**
  *  Create Pacman player
@@ -29,7 +26,8 @@ export class Pacman {
     public y: number,
     public width: number,
     public height: number,
-    public speed: number
+    public speed: number,
+    public range: number
   ) {
     this.x = x
     this.y = y
@@ -40,6 +38,7 @@ export class Pacman {
     this.nextDirection = 4
     this.frameCount = 7
     this.currentFrame = 1
+    this.range = range
     setInterval(() => {
       this.changeAnimation()
     }, 100)
@@ -112,33 +111,36 @@ export class Pacman {
     }
   }
 
-  /**
-   * If the player is on the same tile as a food item, then the food item is eaten and the score is
-   * increased
-   */
-  eat(): void {
+  isInRange(ghost: Ghost): boolean {
+    let xDistance = Math.abs(ghost.getMapX() - this.getMapX())
+    let yDistance = Math.abs(ghost.getMapY() - this.getMapY())
+    return (
+      Math.sqrt(xDistance * xDistance + yDistance * yDistance) <= this.range
+    )
+  }
+
+  isEatingFood(): boolean {
     for (let i = 0; i < MAP.length; i++) {
       for (let j = 0; j < MAP[0].length; j++) {
         if (MAP[i][j] === 2 && this.getMapX() === j && this.getMapY() === i) {
-          MAP[i][j] = 3
-          score += 10
-          eatSound.volume = 0.2
-          eatSound.play()
-        }
-        if (MAP[i][j] === 4 && this.getMapX() === j && this.getMapY() === i) {
-          MAP[i][j] = 3
-          score += 200
-          eatFruitSound.play()
+          return true
         }
       }
     }
+    return false
   }
 
-  /**
-   * If any of the four corners of the player are inside a block, then the player is colliding with a
-   * block
-   * @returns A boolean value.
-   */
+  isEatingFruit(): boolean {
+    for (let i = 0; i < MAP.length; i++) {
+      for (let j = 0; j < MAP[0].length; j++) {
+        if (MAP[i][j] === 4 && this.getMapX() === j && this.getMapY() === i) {
+          return true
+        }
+      }
+    }
+    return false
+  }
+
   checkCollisions(): boolean {
     let isCollided = false
     if (
@@ -165,15 +167,10 @@ export class Pacman {
    * @returns A boolean value.
    */
   checkGhostCollision(ghosts: Ghost[]): boolean {
-    for (let i = 0; i < ghosts.length; i++) {
-      if (
-        ghosts[i].getMapX() == this.getMapX() &&
-        ghosts[i].getMapY() == this.getMapY()
-      ) {
-        return true
-      }
-    }
-    return false
+    return ghosts.some(
+      (ghost) =>
+        ghost.getMapX() === this.getMapX() && ghost.getMapY() === this.getMapY()
+    )
   }
 
   /**
@@ -199,8 +196,7 @@ export class Pacman {
    * @returns The x coordinate of the player on the map.
    */
   getMapX(): number {
-    let mapX = Math.floor(this.x / blockSize)
-    return mapX
+    return Math.floor(this.x / blockSize)
   }
 
   /**
@@ -208,8 +204,7 @@ export class Pacman {
    * @returns The y coordinate of the player on the map.
    */
   getMapY(): number {
-    let mapY = Math.floor(this.y / blockSize)
-    return mapY
+    return Math.floor(this.y / blockSize)
   }
 
   /**
@@ -217,8 +212,7 @@ export class Pacman {
    * @returns The right side of the player's x position.
    */
   getMapXRightSide(): number {
-    let mapX = Math.floor((this.x * 0.99 + blockSize) / blockSize)
-    return mapX
+    return Math.floor((this.x * 0.99 + blockSize) / blockSize)
   }
 
   /**
@@ -226,8 +220,7 @@ export class Pacman {
    * @returns The y coordinate of the right side of the player.
    */
   getMapYRightSide(): number {
-    let mapY = Math.floor((this.y * 0.99 + blockSize) / blockSize)
-    return mapY
+    return Math.floor((this.y * 0.99 + blockSize) / blockSize)
   }
 
   /**
@@ -237,6 +230,26 @@ export class Pacman {
   changeAnimation(): void {
     this.currentFrame =
       this.currentFrame === this.frameCount ? 1 : this.currentFrame + 1
+  }
+
+  createArcForDebug(): void {
+    gameContext.beginPath()
+    gameContext.strokeStyle = "green"
+    gameContext.arc(
+      this.x + blockSize / 2,
+      this.y + blockSize / 2,
+      this.range * blockSize,
+      0,
+      2 * Math.PI
+    )
+    gameContext.stroke()
+  }
+
+  reset(): void {
+    this.x = blockSize
+    this.y = blockSize
+    this.direction = DIRECTION_RIGHT
+    this.nextDirection = DIRECTION_RIGHT
   }
 
   /**
@@ -260,6 +273,7 @@ export class Pacman {
       this.width,
       this.height
     )
+    this.createArcForDebug()
     gameContext.restore()
   }
 }
@@ -273,12 +287,4 @@ export const drawRemainingLives = (lives: number): void => {
   for (let i = 0; i <= lives; i++) {
     displayLives!.innerHTML = lives.toString()
   }
-}
-
-/**
- * It draws the score on the canvas
- */
-export const drawScore = (): void => {
-  const displayScore = document.querySelector("#score")!
-  displayScore.innerHTML = score.toString()
 }
