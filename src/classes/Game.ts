@@ -1,14 +1,16 @@
-import { Ghost } from "./Ghosts"
+import { Ghost } from "./Ghost"
 import {
   blockSize,
   canvas,
   createCircle,
+  createDisplayText,
   creatRect,
   DIRECTION_BOTTOM,
   DIRECTION_LEFT,
   DIRECTION_RIGHT,
   DIRECTION_UP,
   MAP,
+  resetMap,
 } from "../utils"
 import { Pacman } from "./Pacman"
 
@@ -17,26 +19,49 @@ import { Pacman } from "./Pacman"
  * @class
  */
 export class Game {
-  private live: number = 3
+  private score: number = 0
+  private lives: number = 0
+  private livesMax: number = 3
   private readonly pacman: Pacman = this.createPacman()
   private readonly ghosts: Ghost[] = []
+  private isGamePaused: boolean = false
+  private isRunning: boolean = false
+  private gameInterval: number | null = null
   private fps: number = 30
   private readonly ghostCount: number = 2
   private readonly wallColor: string = "#662DCA"
   private readonly wallInnerColor: string = "#000000"
   private readonly wallSpaceWidth: number = blockSize / 1.6
   private readonly wallOffset: number = (blockSize - this.wallSpaceWidth) / 2
+  private btnMenu: HTMLButtonElement = document.querySelector(".btn-menu")!
 
-  constructor() {}
+  constructor() {
+    this.createGhosts()
+  }
 
   /**
    * Initiate a new game
    * @public
    */
   init(): void {
-    this.createGhosts()
-    this.activeGameControl()
-    setInterval(() => this.gameLoop(), 1000 / this.fps)
+    this.gameMenu()
+  }
+
+  private startGame(): void {
+    this.lives = this.livesMax
+    this.isRunning = true
+    if (this.isRunning) {
+      this.activeGameControl()
+      this.gameInterval = setInterval(() => this.gameLoop(), 1000 / this.fps)
+      this.btnMenu.style.display = "none"
+    }
+  }
+
+  private stopGame(): void {
+    if (this.gameInterval !== null) {
+      clearInterval(this.gameInterval)
+      this.isRunning = false
+    }
   }
 
   /**
@@ -45,8 +70,10 @@ export class Game {
    */
   private gameLoop() {
     this.draw()
-    this.updatePacman()
-    this.updateGhosts()
+    if (this.isRunning) {
+      this.updatePacman()
+      this.updateGhosts()
+    }
     if (this.pacman.checkGhostCollision(this.ghosts)) {
       this.gameOver()
     }
@@ -57,16 +84,14 @@ export class Game {
    * @private
    */
   private restartGame() {
-    this.pauseGame()
     this.pacman.reset()
   }
 
-  /**
-   * Pause the game
-   * @private
-   */
-  private pauseGame() {
-    this.fps = 0
+  private resumeGame() {
+    this.btnMenu.style.display = "none"
+    this.gameInterval = setInterval(() => this.gameLoop(), 1000 / this.fps)
+    this.isRunning = true
+    this.isGamePaused = false
   }
 
   /**
@@ -74,12 +99,14 @@ export class Game {
    * @private
    */
   private gameOver() {
-    this.live--
-    if (this.live >= 1) {
+    this.lives--
+    this.drawLives()
+    if (this.lives > 0) {
       this.restartGame()
     }
-    if (this.live === 0) {
-      console.log("Game Over")
+    if (this.lives === 0) {
+      this.stopGame()
+      this.drawGameOverMenu()
     }
   }
 
@@ -96,6 +123,8 @@ export class Game {
    * @private
    */
   private updatePacman() {
+    const eatBlobSound = new Audio("sounds/eat_ball.mp3")
+    const eatFruitSound = new Audio("sounds/eat_fruit.mp3")
     this.pacman.moveProcess()
     if (this.isAllFoodEaten()) {
       console.log("You win!")
@@ -110,9 +139,10 @@ export class Game {
             this.pacman.getMapY() === i
           ) {
             MAP[i][j] = 3
-            //score += 10
-            //eatBlobSound.volume = 0.2
-            //eatBlobSound.play()
+            this.score += 10
+
+            eatBlobSound.volume = 0.1
+            eatBlobSound.play()
           }
         }
       }
@@ -125,9 +155,9 @@ export class Game {
             this.pacman.getMapY() === i
           ) {
             MAP[i][j] = 3
-            //score += 100
-            //eatFruitSound.volume = 1
-            //eatFruitSound.play()
+            this.score += 100
+            eatFruitSound.volume = 1
+            eatFruitSound.play()
           }
         }
       }
@@ -183,6 +213,90 @@ export class Game {
     this.drawFoods()
     this.drawGhosts()
     this.pacman.draw()
+    this.drawScore()
+    this.drawLives()
+  }
+
+  /**
+   * Draw the game menu on the canvas
+   * @private
+   */
+  private gameMenu() {
+    this.drawWalls()
+    this.drawLives()
+    this.drawStartMenu()
+  }
+
+  /**
+   * Draw the menu on the canvas
+   * @private
+   */
+  private drawStartMenu() {
+    creatRect(0, 0, canvas.width, canvas.height, "#00000099")
+    createDisplayText("PACMAN", "#FFFFFF")
+    this.btnMenu.onclick = () => {
+      this.playStartGameSound()
+      this.startGame()
+    }
+  }
+
+  private drawGameOverMenu(): void {
+    creatRect(0, 0, canvas.width, canvas.height, "#00000099")
+    createDisplayText("GAME OVER", "#FFFFFF")
+    this.btnMenu.style.display = "block"
+    this.btnMenu.innerHTML = "Restart"
+    this.btnMenu.onclick = () => {
+      this.resetGame()
+      this.startGame()
+    }
+  }
+
+  private drawPauseGameMenu(): void {
+    this.isGamePaused = true
+    creatRect(0, 0, canvas.width, canvas.height, "#00000099")
+    createDisplayText("GAME PAUSED", "#FFFFFF")
+    this.stopGame()
+    this.btnMenu.style.display = "block"
+    this.btnMenu.innerHTML = "Resume"
+    this.btnMenu.onclick = () => {
+      this.resumeGame()
+    }
+  }
+
+  private playStartGameSound() {
+    const sound = new Audio("sounds/music.mp3")
+    sound.volume = 0.1
+    sound.play()
+  }
+
+  private resetGame(): void {
+    for (let i = 0; i < this.ghosts.length; i++) {
+      this.ghosts[i].x = 9 * blockSize + (i % 2 == 0 ? 0 : 1) * blockSize
+      this.ghosts[i].y = 12 * blockSize + (i % 2 == 0 ? 0 : 1) * blockSize
+    }
+    resetMap()
+    this.pacman.reset()
+    this.score = 0
+    this.lives = this.livesMax
+    this.playStartGameSound()
+  }
+
+  wait(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms))
+  }
+
+  /**
+   * draw the score on the canvas
+   * @private
+   */
+  private drawScore() {
+    const displayScore = document.querySelector("#score")!
+    displayScore.innerHTML = this.score.toString()
+  }
+
+  private drawLives = (): void => {
+    const displayLives = document.querySelector("#lives")!
+    displayLives!.innerHTML = this.lives.toString()
   }
 
   /**
@@ -312,6 +426,12 @@ export class Game {
       } else if (k == "ArrowDown" || k == "s") {
         // bottom arrow or s
         this.pacman.nextDirection = DIRECTION_BOTTOM
+      }
+      if (k == "Escape") {
+        // escape key to pause the game
+        if (!this.isGamePaused && this.lives > 0) {
+          this.drawPauseGameMenu()
+        }
       }
     })
   }

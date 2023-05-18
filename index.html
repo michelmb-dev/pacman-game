@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 
 <head>
   <meta charset="UTF-8" />
@@ -9,23 +9,26 @@
 </head>
 
 <body>
-  <h1>PACMAN GAME</h1>
+  <!-- Create game canvas -->
   <canvas id="canvas" width="552" height="552"></canvas>
+  <button class="btn-menu">Start Game</button>
   <div class="info">
+    <!-- Display lives -->
     <div class="lives">
       <h2>Lives: <span id="lives"></span></h2>
-
     </div>
+    <!-- Display score -->
     <div class="score">
-      <h2>Score: <span id="score"></span></h2>
-
+      <h2>Score: <span id="score">0</span></h2>
     </div>
   </div>
+
+  <!-- debug assets -->
   <div style="display:none;">
     <img id="animation" src="assets/pacman.png" alt="">
     <img id="ghosts" src="assets/ghosts.png" alt="">
   </div>
-  <script type="module" src="/src/main.ts"></script>
-</body>
 
+<script type="module" src="/src/main.ts"></script>
+</body>
 </html>

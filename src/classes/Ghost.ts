@@ -1,12 +1,12 @@
 import {
+  blockSize,
+  canvas,
   DIRECTION_BOTTOM,
   DIRECTION_LEFT,
   DIRECTION_RIGHT,
   DIRECTION_UP,
-  MAP,
-  blockSize,
-  canvas,
   gameContext,
+  MAP,
   randomTargetsForGhosts,
 } from "../utils"
 import type { Pacman } from "./Pacman"
@@ -164,7 +164,7 @@ export class Ghost {
    * @returns A boolean value.
    */
   checkCollisions(): boolean {
-    if (
+    return (
       MAP[Math.floor(this.y / blockSize)][Math.floor(this.x / blockSize)] ==
         1 ||
       MAP[Math.floor(this.y / blockSize + 0.9999)][
@@ -176,10 +176,7 @@ export class Ghost {
       MAP[Math.floor(this.y / blockSize + 0.9999)][
         Math.floor(this.x / blockSize + 0.9999)
       ] == 1
-    ) {
-      return true
-    }
-    return false
+    )
   }
 
   /**
@@ -260,50 +257,50 @@ export class Ghost {
 
   /**
    * It takes a node and returns all the nodes that are adjacent to it
-   * @param {Queue} poped - The current node that we are looking at.
+   * @param {Queue} popped - The current node that we are looking at.
    * @param mp - the map
    * @returns the shortest path from the start to the end.
    */
-  addNeighbors(poped: Queue, mp: typeof MAP) {
+  addNeighbors(popped: Queue, mp: typeof MAP) {
     let queue = []
     let numOfRows = mp.length
     let numOfColumns = mp[0].length
 
     if (
-      poped.x - 1 >= 0 &&
-      poped.x - 1 < numOfRows &&
-      mp[poped.y][poped.x - 1] != 1
+      popped.x - 1 >= 0 &&
+      popped.x - 1 < numOfRows &&
+      mp[popped.y][popped.x - 1] != 1
     ) {
-      let tempMoves = poped.moves.slice()
+      let tempMoves = popped.moves.slice()
       tempMoves.push(DIRECTION_LEFT)
-      queue.push({ x: poped.x - 1, y: poped.y, moves: tempMoves })
+      queue.push({ x: popped.x - 1, y: popped.y, moves: tempMoves })
     }
     if (
-      poped.x + 1 >= 0 &&
-      poped.x + 1 < numOfRows &&
-      mp[poped.y][poped.x + 1] != 1
+      popped.x + 1 >= 0 &&
+      popped.x + 1 < numOfRows &&
+      mp[popped.y][popped.x + 1] != 1
     ) {
-      let tempMoves = poped.moves.slice()
+      let tempMoves = popped.moves.slice()
       tempMoves.push(DIRECTION_RIGHT)
-      queue.push({ x: poped.x + 1, y: poped.y, moves: tempMoves })
+      queue.push({ x: popped.x + 1, y: popped.y, moves: tempMoves })
     }
     if (
-      poped.y - 1 >= 0 &&
-      poped.y - 1 < numOfColumns &&
-      mp[poped.y - 1][poped.x] != 1
+      popped.y - 1 >= 0 &&
+      popped.y - 1 < numOfColumns &&
+      mp[popped.y - 1][popped.x] != 1
     ) {
-      let tempMoves = poped.moves.slice()
+      let tempMoves = popped.moves.slice()
       tempMoves.push(DIRECTION_UP)
-      queue.push({ x: poped.x, y: poped.y - 1, moves: tempMoves })
+      queue.push({ x: popped.x, y: popped.y - 1, moves: tempMoves })
     }
     if (
-      poped.y + 1 >= 0 &&
-      poped.y + 1 < numOfColumns &&
-      mp[poped.y + 1][poped.x] != 1
+      popped.y + 1 >= 0 &&
+      popped.y + 1 < numOfColumns &&
+      mp[popped.y + 1][popped.x] != 1
     ) {
-      let tempMoves = poped.moves.slice()
+      let tempMoves = popped.moves.slice()
       tempMoves.push(DIRECTION_BOTTOM)
-      queue.push({ x: poped.x, y: poped.y + 1, moves: tempMoves })
+      queue.push({ x: popped.x, y: popped.y + 1, moves: tempMoves })
     }
     return queue
   }
@@ -313,8 +310,7 @@ export class Ghost {
    * @returns The x coordinate of the player on the map.
    */
   getMapX(): number {
-    let mapX = Math.floor(this.x / blockSize)
-    return mapX
+    return Math.floor(this.x / blockSize)
   }
 
   /**
@@ -322,8 +318,7 @@ export class Ghost {
    * @returns The y coordinate of the player on the map.
    */
   getMapY(): number {
-    let mapY = Math.floor(this.y / blockSize)
-    return mapY
+    return Math.floor(this.y / blockSize)
   }
 
   /**
@@ -331,8 +326,7 @@ export class Ghost {
    * @returns The x coordinate of the right side of the player.
    */
   getMapXRightSide(): number {
-    let mapX = Math.floor((this.x * 0.99 + blockSize) / blockSize)
-    return mapX
+    return Math.floor((this.x * 0.99 + blockSize) / blockSize)
   }
 
   /**
@@ -340,17 +334,7 @@ export class Ghost {
    * @returns The y coordinate of the right side of the player.
    */
   getMapYRightSide(): number {
-    let mapY = Math.floor((this.y * 0.99 + blockSize) / blockSize)
-    return mapY
-  }
-
-  /**
-   * If the current frame is equal to the total number of frames, set the current frame to 1,
-   * otherwise, add 1 to the current frame
-   */
-  changeAnimation(): void {
-    this.currentFrame =
-      this.currentFrame == this.frameCount ? 1 : this.currentFrame + 1
+    return Math.floor((this.y * 0.99 + blockSize) / blockSize)
   }
 
   createArcForDebug(): void {

@@ -8,7 +8,7 @@ import {
   blockSize,
   canvas,
 } from "../utils"
-import type { Ghost } from "./Ghosts"
+import type { Ghost } from "./Ghost"
 
 const pacmanFrames: HTMLImageElement = document.querySelector("#animation")!
 
@@ -78,7 +78,7 @@ export class Pacman {
   }
 
   /**
-   * If the direction is right, increase the x position by the speed, if the direction is up, decrease
+   * if the direction is right, increase the x position by the speed, if the direction is up, decrease
    * the y position by the speed, if the direction is left, decrease the x position by the speed, if
    * the direction is down, increase the y position by the speed.
    */
@@ -275,16 +275,5 @@ export class Pacman {
     )
     this.createArcForDebug()
     gameContext.restore()
-  }
-}
-
-/**
- * It draws the remaining lives of the player
- * @param {number} lives - number - the number of lives the player has left
- */
-export const drawRemainingLives = (lives: number): void => {
-  const displayLives = document.querySelector("#lives")!
-  for (let i = 0; i <= lives; i++) {
-    displayLives!.innerHTML = lives.toString()
   }
 }

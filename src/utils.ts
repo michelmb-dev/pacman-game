@@ -8,7 +8,7 @@ export const canvas: HTMLCanvasElement = document.querySelector("#canvas")!
 export const gameContext: CanvasRenderingContext2D = canvas.getContext("2d")!
 
 /* A map of the game. */
-export const MAP = [
+const INITIAL_MAP = [
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
   [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
   [1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 2, 1],
@@ -33,6 +33,13 @@ export const MAP = [
   [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 ]
+
+export let MAP = INITIAL_MAP.map((row) => row.slice())
+
+export function resetMap(): void {
+  // Utilisez la fonction map pour créer une copie profonde de la MAP initiale
+  MAP = INITIAL_MAP.map((row) => row.slice())
+}
 
 /* Block size of the pacman. */
 export const blockSize = 24
@@ -82,14 +89,9 @@ export const createCircle = (
   gameContext.fill()
 }
 
-/**
- * It draws the score on the canvas
- */
-export const drawScore = (score: number): void => {
-  const displayScore = document.querySelector("#score")!
-  displayScore.innerHTML = score.toString()
-}
-
-export const wait = (seconds: number): Promise<void> => {
-  return new Promise((resolve) => setTimeout(resolve, seconds * 1000))
+export const createDisplayText = (text: string, color: string) => {
+  gameContext.font = "700 40px Sans-serif"
+  gameContext.fillStyle = color
+  gameContext.textAlign = "center"
+  gameContext.fillText(text, canvas.width / 2, canvas.height / 4)
 }

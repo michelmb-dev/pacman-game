@@ -1,29 +1,71 @@
 * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 body {
-  font-family: sans-serif;
-  background: #000000;
-  color: white;
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  justify-content: center;
-  align-items: center;
+    font-family: sans-serif;
+    background: #000000;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    justify-content: center;
+    align-items: center;
+    padding-inline: 20px;
+    font-size: 16px;
+}
+
+canvas {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1/1;
+    max-width: 800px;
+    border-radius: 5px;
+
 }
 
 h1 {
-  margin-block: 15px;
+    margin-block: 15px;
+    font-size: clamp(16px, 4vw, 36px);
+
+}
+
+.btn-menu {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: clamp(16px, 4vw, 36px);
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: 4px solid #ad9921;
+    color: white;
+    background: #000000;
+    cursor: pointer;
+    animation: flash 1s infinite;
 }
 
 .info {
-  margin-block: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  max-width: 575px;
+    margin-block: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 575px;
+    font-size: clamp(8px, 4vw, 18px);
+
+}
+
+@keyframes flash {
+    0% {
+        border-color: #ad9921;
+    }
+    50% {
+        border-color: #613abd;
+    }
+    100% {
+        border-color: #ad9921;
+    }
 }
