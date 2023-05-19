@@ -9,7 +9,9 @@ import {
   DIRECTION_LEFT,
   DIRECTION_RIGHT,
   DIRECTION_UP,
+  GameState,
   MAP,
+  playStartGameSound,
   resetMap,
 } from "../utils"
 import { Pacman } from "./Pacman"
@@ -19,12 +21,12 @@ import { Pacman } from "./Pacman"
  * @class
  */
 export class Game {
+  private state: GameState = GameState.LOBBY
   private score: number = 0
   private lives: number = 0
   private livesMax: number = 3
   private readonly pacman: Pacman = this.createPacman()
   private readonly ghosts: Ghost[] = []
-  private isGamePaused: boolean = false
   private isRunning: boolean = false
   private gameInterval: number | null = null
   private fps: number = 30
@@ -44,7 +46,41 @@ export class Game {
    * @public
    */
   init(): void {
-    this.gameMenu()
+    switch (this.state) {
+      case GameState.LOBBY:
+        this.startMenuUI()
+        break
+      case GameState.PLAYING:
+        this.startGame()
+        break
+      case GameState.PAUSE:
+        this.pauseMenuUI()
+        break
+      case GameState.RESUME:
+        this.resumeGame()
+        break
+      case GameState.GAME_OVER:
+        this.stopGame()
+        this.resetGame()
+        this.gameOverUI()
+        break
+    }
+  }
+
+  /**
+   * Draw the menu on the canvas
+   * @private
+   */
+  private startMenuUI() {
+    this.drawWalls()
+    this.drawLives()
+    creatRect(0, 0, canvas.width, canvas.height, "#000000CC")
+    createDisplayText("PACMAN", "#FFFFFF")
+    this.btnMenu.onclick = () => {
+      playStartGameSound()
+      this.state = GameState.PLAYING
+      this.init()
+    }
   }
 
   private startGame(): void {
@@ -52,11 +88,18 @@ export class Game {
     this.isRunning = true
     if (this.isRunning) {
       this.activeGameControl()
-      this.gameInterval = setInterval(() => this.gameLoop(), 1000 / this.fps)
+      this.gameInterval = setInterval(
+        () => this.gameLoopIntervalCallback(),
+        1000 / this.fps
+      )
       this.btnMenu.style.display = "none"
     }
   }
 
+  /**
+   *  Stop the gameInterval
+   * @private
+   */
   private stopGame(): void {
     if (this.gameInterval !== null) {
       clearInterval(this.gameInterval)
@@ -65,11 +108,11 @@ export class Game {
   }
 
   /**
-   * Update and draw the game
+   * Update and drawPlayingGame the game
    * @private
    */
-  private gameLoop() {
-    this.draw()
+  private gameLoopIntervalCallback() {
+    this.drawPlayingGame()
     if (this.isRunning) {
       this.updatePacman()
       this.updateGhosts()
@@ -79,34 +122,28 @@ export class Game {
     }
   }
 
-  /**
-   * Restart the game
-   * @private
-   */
-  private restartGame() {
-    this.pacman.reset()
-  }
-
   private resumeGame() {
     this.btnMenu.style.display = "none"
-    this.gameInterval = setInterval(() => this.gameLoop(), 1000 / this.fps)
+    this.gameInterval = setInterval(
+      () => this.gameLoopIntervalCallback(),
+      1000 / this.fps
+    )
     this.isRunning = true
-    this.isGamePaused = false
   }
 
   /**
-   * game over and restart the game if there is still live
+   * game over and restart the game if there is still live.
    * @private
    */
   private gameOver() {
     this.lives--
     this.drawLives()
     if (this.lives > 0) {
-      this.restartGame()
+      this.pacman.reset()
     }
     if (this.lives === 0) {
-      this.stopGame()
-      this.drawGameOverMenu()
+      this.state = GameState.GAME_OVER
+      this.init()
     }
   }
 
@@ -119,7 +156,7 @@ export class Game {
   }
 
   /**
-   * Update pacman position and check if it's eating food or fruit
+   * Update pacman position and check if it is eating food or fruit.
    * @private
    */
   private updatePacman() {
@@ -142,7 +179,7 @@ export class Game {
             this.score += 10
 
             eatBlobSound.volume = 0.1
-            eatBlobSound.play()
+            eatBlobSound.play().catch((e) => console.error(e))
           }
         }
       }
@@ -157,7 +194,7 @@ export class Game {
             MAP[i][j] = 3
             this.score += 100
             eatFruitSound.volume = 1
-            eatFruitSound.play()
+            eatFruitSound.play().catch((e) => console.error(e))
           }
         }
       }
@@ -207,7 +244,7 @@ export class Game {
    * Draw the game on the canvas
    * @private
    */
-  private draw() {
+  private drawPlayingGame() {
     creatRect(0, 0, canvas.width, canvas.height, "black")
     this.drawWalls()
     this.drawFoods()
@@ -217,56 +254,28 @@ export class Game {
     this.drawLives()
   }
 
-  /**
-   * Draw the game menu on the canvas
-   * @private
-   */
-  private gameMenu() {
-    this.drawWalls()
-    this.drawLives()
-    this.drawStartMenu()
-  }
-
-  /**
-   * Draw the menu on the canvas
-   * @private
-   */
-  private drawStartMenu() {
-    creatRect(0, 0, canvas.width, canvas.height, "#00000099")
-    createDisplayText("PACMAN", "#FFFFFF")
-    this.btnMenu.onclick = () => {
-      this.playStartGameSound()
-      this.startGame()
-    }
-  }
-
-  private drawGameOverMenu(): void {
+  private gameOverUI(): void {
     creatRect(0, 0, canvas.width, canvas.height, "#00000099")
     createDisplayText("GAME OVER", "#FFFFFF")
     this.btnMenu.style.display = "block"
     this.btnMenu.innerHTML = "Restart"
     this.btnMenu.onclick = () => {
-      this.resetGame()
-      this.startGame()
+      playStartGameSound()
+      this.state = GameState.PLAYING
+      this.init()
     }
   }
 
-  private drawPauseGameMenu(): void {
-    this.isGamePaused = true
+  private pauseMenuUI(): void {
     creatRect(0, 0, canvas.width, canvas.height, "#00000099")
     createDisplayText("GAME PAUSED", "#FFFFFF")
     this.stopGame()
     this.btnMenu.style.display = "block"
     this.btnMenu.innerHTML = "Resume"
     this.btnMenu.onclick = () => {
-      this.resumeGame()
+      this.state = GameState.RESUME
+      this.init()
     }
-  }
-
-  private playStartGameSound() {
-    const sound = new Audio("sounds/music.mp3")
-    sound.volume = 0.1
-    sound.play()
   }
 
   private resetGame(): void {
@@ -278,15 +287,10 @@ export class Game {
     this.pacman.reset()
     this.score = 0
     this.lives = this.livesMax
-    this.playStartGameSound()
-  }
-
-  wait(ms: number) {
-    return new Promise((resolve) => setTimeout(resolve, ms))
   }
 
   /**
-   * draw the score on the canvas
+   * drawPlayingGame the score on the canvas
    * @private
    */
   private drawScore() {
@@ -415,7 +419,7 @@ export class Game {
     document.addEventListener("keydown", (event) => {
       let k = event.key
       if (k == "ArrowLeft" || k == "q") {
-        // left arrow or q
+        // a left arrow or q
         this.pacman.nextDirection = DIRECTION_LEFT
       } else if (k == "ArrowUp" || k == "z") {
         // up arrow or z
@@ -429,8 +433,12 @@ export class Game {
       }
       if (k == "Escape") {
         // escape key to pause the game
-        if (!this.isGamePaused && this.lives > 0) {
-          this.drawPauseGameMenu()
+        if (
+          this.state !== GameState.PAUSE &&
+          this.state !== GameState.GAME_OVER
+        ) {
+          this.state = GameState.PAUSE
+          this.init()
         }
       }
     })

@@ -7,6 +7,14 @@ export const DIRECTION_BOTTOM = 1
 export const canvas: HTMLCanvasElement = document.querySelector("#canvas")!
 export const gameContext: CanvasRenderingContext2D = canvas.getContext("2d")!
 
+export enum GameState {
+  LOBBY,
+  PLAYING,
+  PAUSE,
+  RESUME,
+  GAME_OVER,
+}
+
 /* A map of the game. */
 const INITIAL_MAP = [
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -56,9 +64,9 @@ export const randomTargetsForGhosts = [
 ]
 
 /**
- * "This function creates a rectangle with the given parameters and fills it with the given color."
+ * This function creates a rectangle with the given parameters and fills it with the given color.
  *
- * The first line of the function is a comment. Comments are ignored by the computer, but they are
+ * The first line of the function is a comment. Comments ignored by the computer, but they are
  * useful for humans
  * @param {number} x - The x coordinate of the top left corner of the rectangle.
  * @param {number} y - number,
@@ -94,4 +102,14 @@ export const createDisplayText = (text: string, color: string) => {
   gameContext.fillStyle = color
   gameContext.textAlign = "center"
   gameContext.fillText(text, canvas.width / 2, canvas.height / 4)
+}
+
+export const playStartGameSound = () => {
+  const sound = new Audio("sounds/music.mp3")
+  sound.volume = 0.1
+  sound.play().catch((e) => console.error(e))
+}
+
+export const wait = (ms: number) => {
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
