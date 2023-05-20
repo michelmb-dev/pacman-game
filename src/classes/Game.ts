@@ -11,8 +11,9 @@ import {
   DIRECTION_UP,
   GameState,
   MAP,
-  playStartGameSound,
+  playSound,
   resetMap,
+  wait,
 } from "../utils"
 import { Pacman } from "./Pacman"
 
@@ -24,13 +25,13 @@ export class Game {
   private state: GameState = GameState.LOBBY
   private score: number = 0
   private lives: number = 0
-  private livesMax: number = 3
+  private livesMax: number = 5
   private readonly pacman: Pacman = this.createPacman()
   private readonly ghosts: Ghost[] = []
   private isRunning: boolean = false
   private gameInterval: number | null = null
   private fps: number = 30
-  private readonly ghostCount: number = 2
+  private readonly ghostCount: number = 5
   private readonly wallColor: string = "#662DCA"
   private readonly wallInnerColor: string = "#000000"
   private readonly wallSpaceWidth: number = blockSize / 1.6
@@ -61,7 +62,6 @@ export class Game {
         break
       case GameState.GAME_OVER:
         this.stopGame()
-        this.resetGame()
         this.gameOverUI()
         break
     }
@@ -77,7 +77,7 @@ export class Game {
     creatRect(0, 0, canvas.width, canvas.height, "#000000CC")
     createDisplayText("PACMAN", "#FFFFFF")
     this.btnMenu.onclick = () => {
-      playStartGameSound()
+      playSound("sounds/music.mp3", 0.1)
       this.state = GameState.PLAYING
       this.init()
     }
@@ -113,12 +113,13 @@ export class Game {
    */
   private gameLoopIntervalCallback() {
     this.drawPlayingGame()
-    if (this.isRunning) {
+    if (this.isRunning && !this.pacman.isRotating) {
       this.updatePacman()
+      if (this.pacman.checkGhostCollision(this.ghosts)) {
+        this.resetGhosts()
+        this.gameOver()
+      }
       this.updateGhosts()
-    }
-    if (this.pacman.checkGhostCollision(this.ghosts)) {
-      this.gameOver()
     }
   }
 
@@ -138,12 +139,19 @@ export class Game {
   private gameOver() {
     this.lives--
     this.drawLives()
+    playSound("sounds/die.mp3", 0.2)
     if (this.lives > 0) {
-      this.pacman.reset()
+      this.pacman.rotateAnimation(2, 1000)
+      wait(1100).then(() => {
+        this.pacman.reset()
+      })
     }
     if (this.lives === 0) {
-      this.state = GameState.GAME_OVER
-      this.init()
+      this.pacman.rotateAnimation(2, 1000)
+      wait(1100).then(() => {
+        this.state = GameState.GAME_OVER
+        this.init()
+      })
     }
   }
 
@@ -160,8 +168,6 @@ export class Game {
    * @private
    */
   private updatePacman() {
-    const eatBlobSound = new Audio("sounds/eat_ball.mp3")
-    const eatFruitSound = new Audio("sounds/eat_fruit.mp3")
     this.pacman.moveProcess()
     if (this.isAllFoodEaten()) {
       console.log("You win!")
@@ -177,12 +183,10 @@ export class Game {
           ) {
             MAP[i][j] = 3
             this.score += 10
-
-            eatBlobSound.volume = 0.1
-            eatBlobSound.play().catch((e) => console.error(e))
           }
         }
       }
+      playSound("sounds/eat_ball.mp3", 0.1)
     } else if (this.pacman.isEatingFruit()) {
       for (let i = 0; i < MAP.length; i++) {
         for (let j = 0; j < MAP[0].length; j++) {
@@ -193,11 +197,14 @@ export class Game {
           ) {
             MAP[i][j] = 3
             this.score += 100
-            eatFruitSound.volume = 1
-            eatFruitSound.play().catch((e) => console.error(e))
           }
         }
       }
+      this.ghosts.forEach((ghost) => {
+        ghost.setFrightenedMode(5000)
+        playSound("sounds/frightened.mp3", 0.2)
+      })
+      playSound("sounds/eat_fruit.mp3", 0.1)
     }
   }
 
@@ -260,7 +267,9 @@ export class Game {
     this.btnMenu.style.display = "block"
     this.btnMenu.innerHTML = "Restart"
     this.btnMenu.onclick = () => {
-      playStartGameSound()
+      playSound("sounds/music.mp3", 0.1)
+      this.resetGame()
+      this.resetGhosts()
       this.state = GameState.PLAYING
       this.init()
     }
@@ -278,12 +287,16 @@ export class Game {
     }
   }
 
-  private resetGame(): void {
+  private resetGhosts(): void {
     for (let i = 0; i < this.ghosts.length; i++) {
       this.ghosts[i].x = 9 * blockSize + (i % 2 == 0 ? 0 : 1) * blockSize
       this.ghosts[i].y = 12 * blockSize + (i % 2 == 0 ? 0 : 1) * blockSize
     }
+  }
+
+  private resetGame(): void {
     resetMap()
+    this.resetGhosts()
     this.pacman.reset()
     this.score = 0
     this.lives = this.livesMax

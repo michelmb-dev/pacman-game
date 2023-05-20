@@ -12,6 +12,8 @@ import {
 import type { Pacman } from "./Pacman"
 
 const ghostFrames: HTMLImageElement = document.querySelector("#ghosts")!
+const ghostFramesFrightened: HTMLImageElement =
+  document.querySelector("#ghosts-frightened")!
 
 type Queue = {
   x: number
@@ -30,6 +32,7 @@ export class Ghost {
   target: { x: number; y: number }
   frameCount: number
   currentFrame: number
+  frightened: boolean
 
   constructor(
     public x: number,
@@ -59,6 +62,7 @@ export class Ghost {
     this.frameCount = 7
     this.currentFrame = 1
     this.changeRandomDirection()
+    this.frightened = false
   }
 
   /**
@@ -91,16 +95,33 @@ export class Ghost {
    * @param {Pacman} pacman - Pacman - the pacman object
    */
   moveProcess(pacman: Pacman): void {
-    if (this.isInRange(pacman)) {
-      this.target = pacman
+    if (this.frightened) {
+      this.target = {
+        x:
+          9 * blockSize + (this.randomTargetIndex % 2 == 0 ? 0 : 1) * blockSize,
+        y:
+          12 * blockSize +
+          (this.randomTargetIndex % 2 == 0 ? 0 : 1) * blockSize,
+      }
     } else {
-      this.target = randomTargetsForGhosts[this.randomTargetIndex]
+      if (this.isInRange(pacman)) {
+        this.target = pacman
+      } else {
+        this.target = randomTargetsForGhosts[this.randomTargetIndex]
+      }
     }
     this.changeDirectionIfPossible()
     this.moveForwards()
     if (this.checkCollisions()) {
       this.moveBackwards()
     }
+  }
+
+  setFrightenedMode(duration: number): void {
+    this.frightened = true
+    setTimeout(() => {
+      this.frightened = false
+    }, duration)
   }
 
   /**
@@ -356,7 +377,7 @@ export class Ghost {
   draw(): void {
     gameContext.save()
     gameContext.drawImage(
-      ghostFrames,
+      this.frightened ? ghostFramesFrightened : ghostFrames,
       this.imageX,
       this.imageY,
       this.imageWidth,
@@ -366,7 +387,7 @@ export class Ghost {
       this.width + 2,
       this.height + 2
     )
-    this.createArcForDebug()
+    //this.createArcForDebug()
     gameContext.restore()
   }
 }

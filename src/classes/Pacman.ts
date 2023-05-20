@@ -1,12 +1,12 @@
 import {
+  blockSize,
+  canvas,
   DIRECTION_BOTTOM,
   DIRECTION_LEFT,
   DIRECTION_RIGHT,
   DIRECTION_UP,
-  MAP,
   gameContext,
-  blockSize,
-  canvas,
+  MAP,
 } from "../utils"
 import type { Ghost } from "./Ghost"
 
@@ -20,6 +20,8 @@ export class Pacman {
   nextDirection: number
   frameCount: number
   currentFrame: number
+  isRotating = false
+  rotationAngle = 0
 
   constructor(
     public x: number,
@@ -49,6 +51,9 @@ export class Pacman {
    * backwards.
    */
   moveProcess(): void {
+    if (this.isRotating) {
+      return
+    }
     this.changeDirectionIfPossible()
     this.moveForwards()
     if (this.checkCollisions()) {
@@ -232,6 +237,25 @@ export class Pacman {
       this.currentFrame === this.frameCount ? 1 : this.currentFrame + 1
   }
 
+  rotateAnimation(tours: number, duration: number) {
+    const totalDegrees = 360 * tours
+    const steps = Math.floor(duration / 100)
+    const degreesPerStep = totalDegrees / steps
+    let currentDegrees = 0
+
+    this.isRotating = true
+
+    const rotationInterval = setInterval(() => {
+      currentDegrees += degreesPerStep
+      this.rotationAngle = currentDegrees * (Math.PI / 180)
+      if (currentDegrees >= totalDegrees) {
+        clearInterval(rotationInterval)
+        this.isRotating = false
+        return
+      }
+    }, 100)
+  }
+
   createArcForDebug(): void {
     gameContext.beginPath()
     gameContext.strokeStyle = "green"
@@ -260,7 +284,9 @@ export class Pacman {
   draw(): void {
     gameContext.save()
     gameContext.translate(this.x + blockSize / 2, this.y + blockSize / 2)
-    gameContext.rotate((this.direction * 90 * Math.PI) / 180)
+    gameContext.rotate(
+      (this.direction * 90 * Math.PI) / 180 + this.rotationAngle
+    )
     gameContext.translate(-this.x - blockSize / 2, -this.y - blockSize / 2)
     gameContext.drawImage(
       pacmanFrames,
@@ -273,7 +299,7 @@ export class Pacman {
       this.width,
       this.height
     )
-    this.createArcForDebug()
+    //this.createArcForDebug()
     gameContext.restore()
   }
 }

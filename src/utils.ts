@@ -104,10 +104,16 @@ export const createDisplayText = (text: string, color: string) => {
   gameContext.fillText(text, canvas.width / 2, canvas.height / 4)
 }
 
-export const playStartGameSound = () => {
-  const sound = new Audio("sounds/music.mp3")
-  sound.volume = 0.1
-  sound.play().catch((e) => console.error(e))
+/**
+ * Play Sound
+ * @param {string} audio
+ * @param {number} volume
+ */
+export const playSound = (audio: string, volume: number) => {
+  const sound = new Audio(audio)
+  sound.volume = volume
+  sound.loop = false
+  sound.play()
 }
 
 export const wait = (ms: number) => {
