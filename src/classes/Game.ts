@@ -4,6 +4,7 @@ import {
   canvas,
   createCircle,
   createDisplayText,
+  createDisplayTitle,
   creatRect,
   DIRECTION_BOTTOM,
   DIRECTION_LEFT,
@@ -11,6 +12,7 @@ import {
   DIRECTION_UP,
   GameState,
   MAP,
+  MAPS,
   playSound,
   resetMap,
   wait,
@@ -25,13 +27,15 @@ export class Game {
   private state: GameState = GameState.LOBBY
   private score: number = 0
   private lives: number = 0
-  private livesMax: number = 5
+  private livesMax: number = 2
+  private readonly maps: MAP[] = MAPS
+  private gameLevel: number = 1
   private readonly pacman: Pacman = this.createPacman()
   private readonly ghosts: Ghost[] = []
   private isRunning: boolean = false
   private gameInterval: number | null = null
   private fps: number = 30
-  private readonly ghostCount: number = 5
+  private readonly ghostCount: number = 2
   private readonly wallColor: string = "#662DCA"
   private readonly wallInnerColor: string = "#000000"
   private readonly wallSpaceWidth: number = blockSize / 1.6
@@ -60,6 +64,9 @@ export class Game {
       case GameState.RESUME:
         this.resumeGame()
         break
+      case GameState.WIN:
+        this.winMenuUI()
+        break
       case GameState.GAME_OVER:
         this.stopGame()
         this.gameOverUI()
@@ -75,7 +82,8 @@ export class Game {
     this.drawWalls()
     this.drawLives()
     creatRect(0, 0, canvas.width, canvas.height, "#000000CC")
-    createDisplayText("PACMAN", "#FFFFFF")
+    createDisplayTitle("PACMAN", "#FFFFFF")
+    createDisplayText("Level: " + this.gameLevel, "#FFFFFF")
     this.btnMenu.onclick = () => {
       playSound("sounds/music.mp3", 0.1)
       this.state = GameState.PLAYING
@@ -83,10 +91,37 @@ export class Game {
     }
   }
 
+  private winMenuUI() {
+    this.drawWalls()
+    this.drawLives()
+    creatRect(0, 0, canvas.width, canvas.height, "#000000CC")
+    createDisplayTitle("PACMAN", "#FFFFFF")
+    this.btnMenu.style.display = "block"
+    if (this.gameLevel <= MAPS.length) {
+      createDisplayText("Win Level: " + this.gameLevel, "#FFFFFF")
+      this.btnMenu.innerHTML = "NEXT LEVEL"
+      this.btnMenu.onclick = () => {
+        this.gameLevel = this.gameLevel + 1
+        playSound("sounds/music.mp3", 0.1)
+        this.state = GameState.PLAYING
+        this.init()
+      }
+    } else {
+      createDisplayText("Win All Levels!", "#FFFFFF")
+      this.btnMenu.innerHTML = "MENU"
+      this.btnMenu.onclick = () => {
+        this.gameLevel = 1
+        this.state = GameState.LOBBY
+        this.init()
+      }
+    }
+  }
+
   private startGame(): void {
     this.lives = this.livesMax
     this.isRunning = true
     if (this.isRunning) {
+      resetMap(this.maps[this.gameLevel - 1])
       this.activeGameControl()
       this.gameInterval = setInterval(
         () => this.gameLoopIntervalCallback(),
@@ -170,7 +205,9 @@ export class Game {
   private updatePacman() {
     this.pacman.moveProcess()
     if (this.isAllFoodEaten()) {
-      console.log("You win!")
+      this.stopGame()
+      this.state = GameState.WIN
+      this.init()
     }
 
     if (this.pacman.isEatingFood()) {
@@ -263,7 +300,7 @@ export class Game {
 
   private gameOverUI(): void {
     creatRect(0, 0, canvas.width, canvas.height, "#00000099")
-    createDisplayText("GAME OVER", "#FFFFFF")
+    createDisplayTitle("GAME OVER", "#FFFFFF")
     this.btnMenu.style.display = "block"
     this.btnMenu.innerHTML = "Restart"
     this.btnMenu.onclick = () => {
@@ -277,7 +314,7 @@ export class Game {
 
   private pauseMenuUI(): void {
     creatRect(0, 0, canvas.width, canvas.height, "#00000099")
-    createDisplayText("GAME PAUSED", "#FFFFFF")
+    createDisplayTitle("GAME PAUSED", "#FFFFFF")
     this.stopGame()
     this.btnMenu.style.display = "block"
     this.btnMenu.innerHTML = "Resume"
@@ -295,7 +332,7 @@ export class Game {
   }
 
   private resetGame(): void {
-    resetMap()
+    resetMap(this.maps[this.gameLevel - 1])
     this.resetGhosts()
     this.pacman.reset()
     this.score = 0
