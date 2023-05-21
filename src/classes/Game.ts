@@ -41,6 +41,7 @@ export class Game {
   private readonly wallSpaceWidth: number = blockSize / 1.6
   private readonly wallOffset: number = (blockSize - this.wallSpaceWidth) / 2
   private btnMenu: HTMLButtonElement = document.querySelector(".btn-menu")!
+  private isFrightened: boolean = false
 
   constructor() {
     this.createGhosts()
@@ -175,6 +176,9 @@ export class Game {
    * @private
    */
   private gameOver() {
+    if (this.isFrightened) {
+      return
+    }
     this.lives--
     this.drawLives()
     playSound("sounds/die.mp3", 0.2)
@@ -243,6 +247,7 @@ export class Game {
       this.ghosts.forEach((ghost) => {
         ghost.setFrightenedMode(5000)
         playSound("sounds/frightened.mp3", 0.2)
+        this.isFrightened = ghost.frightened
       })
       playSound("sounds/eat_fruit.mp3", 0.1)
     }
