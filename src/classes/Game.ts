@@ -249,6 +249,7 @@ export class Game {
         playSound("sounds/frightened.mp3", 0.2)
         this.isFrightened = ghost.frightened
       })
+      wait(5000).then(() => (this.isFrightened = false))
       playSound("sounds/eat_fruit.mp3", 0.1)
     }
   }
