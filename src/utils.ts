@@ -171,6 +171,8 @@ export const createDisplayText = (text: string, color: string) => {
   gameContext.fillText(text, canvas.width / 2, canvas.height / 3)
 }
 
+const playingSounds: Set<HTMLAudioElement> = new Set()
+
 /**
  * Play Sound
  * @param {string} audio
@@ -181,6 +183,23 @@ export const playSound = (audio: string, volume: number) => {
   sound.volume = volume
   sound.loop = false
   sound.play()
+
+  playingSounds.add(sound)
+
+  sound.addEventListener("ended", () => {
+    playingSounds.delete(sound)
+  })
+}
+
+/**
+ * Stop all sound playing
+ */
+export const stopAllSounds = () => {
+  for (const sound of playingSounds) {
+    sound.pause()
+    sound.currentTime = 0
+  }
+  playingSounds.clear()
 }
 
 export const wait = (ms: number) => {

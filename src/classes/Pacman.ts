@@ -7,6 +7,7 @@ import {
   DIRECTION_UP,
   gameContext,
   MAP,
+  playSound,
 } from "../utils"
 import type { Ghost } from "./Ghost"
 
@@ -172,10 +173,26 @@ export class Pacman {
    * @returns A boolean value.
    */
   checkGhostCollision(ghosts: Ghost[]): boolean {
-    return ghosts.some(
+    let collided = false
+    for (let i = 0; i < ghosts.length; i++) {
+      const ghost = ghosts[i]
+      if (
+        ghost.getMapX() === this.getMapX() &&
+        ghost.getMapY() === this.getMapY()
+      ) {
+        collided = true
+        if (ghost.frightened) {
+          playSound("sounds/eat_ghost.mp3", 0.5)
+          ghosts.splice(i, 1)
+        }
+        break
+      }
+    }
+    return collided
+    /*   return ghosts.some(
       (ghost) =>
         ghost.getMapX() === this.getMapX() && ghost.getMapY() === this.getMapY()
-    )
+    )*/
   }
 
   /**

@@ -15,6 +15,7 @@ import {
   MAPS,
   playSound,
   resetMap,
+  stopAllSounds,
   wait,
 } from "../utils"
 import { Pacman } from "./Pacman"
@@ -44,7 +45,7 @@ export class Game {
   private isFrightened: boolean = false
 
   constructor() {
-    this.createGhosts()
+    this.createGhosts(this.ghostCount)
   }
 
   /**
@@ -80,6 +81,7 @@ export class Game {
    * @private
    */
   private startMenuUI() {
+    stopAllSounds()
     this.drawWalls()
     this.drawLives()
     creatRect(0, 0, canvas.width, canvas.height, "#000000CC")
@@ -94,6 +96,7 @@ export class Game {
   }
 
   private winMenuUI() {
+    stopAllSounds()
     this.drawWalls()
     this.drawLives()
     creatRect(0, 0, canvas.width, canvas.height, "#000000CC")
@@ -155,8 +158,10 @@ export class Game {
     if (this.isRunning && !this.pacman.isRotating) {
       this.updatePacman()
       if (this.pacman.checkGhostCollision(this.ghosts)) {
-        this.resetGhosts()
-        this.gameOver()
+        if (!this.isFrightened) {
+          this.resetGhosts()
+          this.gameOver()
+        }
       }
       this.updateGhosts()
     }
@@ -245,8 +250,10 @@ export class Game {
         }
       }
       this.ghosts.forEach((ghost) => {
-        ghost.setFrightenedMode(5000)
-        playSound("sounds/frightened.mp3", 0.2)
+        if (!ghost.frightened) {
+          ghost.setFrightenedMode(5000)
+          playSound("sounds/frightened.mp3", 0.1)
+        }
         this.isFrightened = ghost.frightened
       })
       wait(5000).then(() => (this.isFrightened = false))
@@ -258,14 +265,14 @@ export class Game {
    * Create ghosts for the game and return them
    * @private
    */
-  private createGhosts() {
+  private createGhosts(count: number) {
     let ghostImageLocations = [
       { x: 0, y: 0 },
       { x: 176, y: 0 },
       { x: 0, y: 121 },
       { x: 176, y: 121 },
     ]
-    for (let i = 0; i < this.ghostCount; i++) {
+    for (let i = 0; i < count; i++) {
       let newGhost = new Ghost(
         9 * blockSize + (i % 2 == 0 ? 0 : 1) * blockSize,
         12 * blockSize + (i % 2 == 0 ? 0 : 1) * blockSize,
@@ -291,6 +298,11 @@ export class Game {
     for (let i = 0; i < this.ghosts.length; i++) {
       this.ghosts[i].moveProcess(this.pacman)
     }
+    if (this.ghosts.length < this.ghostCount) {
+      wait(10000).then(() =>
+        this.createGhosts(this.ghostCount - this.ghosts.length)
+      )
+    }
   }
 
   /**
@@ -308,6 +320,7 @@ export class Game {
   }
 
   private gameOverUI(): void {
+    stopAllSounds()
     creatRect(0, 0, canvas.width, canvas.height, "#00000099")
     createDisplayTitle("GAME OVER", "#FFFFFF")
     this.btnMenu.style.display = "block"
@@ -322,6 +335,7 @@ export class Game {
   }
 
   private pauseMenuUI(): void {
+    stopAllSounds()
     creatRect(0, 0, canvas.width, canvas.height, "#00000099")
     createDisplayTitle("GAME PAUSED", "#FFFFFF")
     this.stopGame()
