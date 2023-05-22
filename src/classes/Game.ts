@@ -124,6 +124,7 @@ export class Game {
       createDisplayText("Win All Levels!", "#FFFFFF")
       this.btnMenu.innerHTML = "MENU"
       this.btnMenu.onclick = () => {
+        this.resetGame()
         this.gameLevel = 1
         this.state = GameState.LOBBY
         this.init()
