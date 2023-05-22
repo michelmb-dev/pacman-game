@@ -252,7 +252,7 @@ export class Game {
       this.ghosts.forEach((ghost) => {
         if (!ghost.frightened) {
           ghost.setFrightenedMode(5000)
-          playSound("sounds/frightened.mp3", 0.1)
+          playSound("sounds/frightened.mp3", 0.1, true)
         }
         this.isFrightened = ghost.frightened
       })
