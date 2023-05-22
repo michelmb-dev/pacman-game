@@ -31,13 +31,13 @@ export class Game {
   private lives: number = 0
   private livesMax: number = 3
   private readonly maps: MAP[] = MAPS
-  private gameLevel: number = 1
+  private gameLevel: number = 3
   private readonly pacman: Pacman = this.createPacman()
   private readonly ghosts: Ghost[] = []
   private isRunning: boolean = false
   private gameInterval: number | null = null
   private fps: number = 30
-  private readonly ghostCount: number = 6
+  private readonly ghostCount: number = 1
   private readonly wallColor: string = "#662DCA"
   private readonly wallInnerColor: string = "#000000"
   private readonly wallSpaceWidth: number = blockSize / 1.6
@@ -120,6 +120,7 @@ export class Game {
       clearCanvas()
       this.drawWalls()
       creatRect(0, 0, canvas.width, canvas.height, "#000000CC")
+      createDisplayTitle("PACMAN", "#FFFFFF")
       createDisplayText("Win All Levels!", "#FFFFFF")
       this.btnMenu.innerHTML = "MENU"
       this.btnMenu.onclick = () => {
