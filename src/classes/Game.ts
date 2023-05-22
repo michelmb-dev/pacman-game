@@ -101,9 +101,9 @@ export class Game {
     this.drawLives()
     creatRect(0, 0, canvas.width, canvas.height, "#000000CC")
     createDisplayTitle("PACMAN", "#FFFFFF")
+    createDisplayText("Win Level: " + this.gameLevel, "#FFFFFF")
     this.btnMenu.style.display = "block"
     if (this.gameLevel < MAPS.length) {
-      createDisplayText("Win Level: " + this.gameLevel, "#FFFFFF")
       this.btnMenu.innerHTML = "NEXT LEVEL"
       this.btnMenu.onclick = () => {
         this.gameLevel = this.gameLevel + 1
@@ -114,7 +114,6 @@ export class Game {
         this.init()
       }
     } else {
-      createDisplayText("Win All Levels!", "#FFFFFF")
       this.btnMenu.innerHTML = "MENU"
       this.btnMenu.onclick = () => {
         this.gameLevel = 1
