@@ -2,6 +2,7 @@ import { Ghost } from "./Ghost"
 import {
   blockSize,
   canvas,
+  clearCanvas,
   createCircle,
   createDisplayText,
   createDisplayTitle,
@@ -36,7 +37,7 @@ export class Game {
   private isRunning: boolean = false
   private gameInterval: number | null = null
   private fps: number = 30
-  private readonly ghostCount: number = 5
+  private readonly ghostCount: number = 6
   private readonly wallColor: string = "#662DCA"
   private readonly wallInnerColor: string = "#000000"
   private readonly wallSpaceWidth: number = blockSize / 1.6
@@ -81,6 +82,7 @@ export class Game {
    * @private
    */
   private startMenuUI() {
+    clearCanvas()
     stopAllSounds()
     this.drawWalls()
     this.drawLives()
@@ -96,12 +98,13 @@ export class Game {
   }
 
   private winMenuUI() {
+    clearCanvas()
     stopAllSounds()
     this.drawWalls()
     this.drawLives()
     creatRect(0, 0, canvas.width, canvas.height, "#000000CC")
     createDisplayTitle("PACMAN", "#FFFFFF")
-    createDisplayText("Win Level: " + this.gameLevel, "#FFFFFF")
+    createDisplayText("Win Level N° " + this.gameLevel, "#FFFFFF")
     this.btnMenu.style.display = "block"
     if (this.gameLevel < MAPS.length) {
       this.btnMenu.innerHTML = "NEXT LEVEL"
@@ -114,6 +117,10 @@ export class Game {
         this.init()
       }
     } else {
+      clearCanvas()
+      this.drawWalls()
+      creatRect(0, 0, canvas.width, canvas.height, "#000000CC")
+      createDisplayText("Win All Levels!", "#FFFFFF")
       this.btnMenu.innerHTML = "MENU"
       this.btnMenu.onclick = () => {
         this.gameLevel = 1
@@ -506,12 +513,15 @@ export class Game {
       if (k == "Escape") {
         // escape key to pause the game
         if (
-          this.state !== GameState.PAUSE &&
-          this.state !== GameState.GAME_OVER
+          this.state === GameState.LOBBY ||
+          this.state === GameState.PAUSE ||
+          this.state === GameState.WIN ||
+          this.state === GameState.GAME_OVER
         ) {
-          this.state = GameState.PAUSE
-          this.init()
+          return
         }
+        this.state = GameState.PAUSE
+        this.init()
       }
     })
   }

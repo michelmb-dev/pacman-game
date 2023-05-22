@@ -214,3 +214,7 @@ export const stopAllSounds = () => {
 export const wait = (ms: number) => {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
+
+export const clearCanvas = (): void => {
+  gameContext.clearRect(0, 0, canvas.width, canvas.height)
+}
