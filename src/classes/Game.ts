@@ -43,6 +43,10 @@ export class Game {
   private readonly wallSpaceWidth: number = blockSize / 1.6
   private readonly wallOffset: number = (blockSize - this.wallSpaceWidth) / 2
   private btnMenu: HTMLButtonElement = document.querySelector(".btn-menu")!
+  private btnUp: HTMLButtonElement | null = document.querySelector("#UP")
+  private btnDown: HTMLButtonElement | null = document.querySelector("#DOWN")
+  private btnLeft: HTMLButtonElement | null = document.querySelector("#LEFT")
+  private btnRight: HTMLButtonElement | null = document.querySelector("#RIGHT")
   private isFrightened: boolean = false
 
   constructor() {
@@ -497,6 +501,7 @@ export class Game {
    * @private
    */
   private activeGameControl() {
+    // KEYBOARD CONTROL
     document.addEventListener("keydown", (event) => {
       let k = event.key
       if (k == "ArrowLeft" || k == "q") {
@@ -526,5 +531,26 @@ export class Game {
         this.init()
       }
     })
+    // BUTTONS CONTROL
+    if (this.btnUp) {
+      this.btnUp.addEventListener("click", () => {
+        this.pacman.nextDirection = DIRECTION_UP
+      })
+    }
+    if (this.btnDown) {
+      this.btnDown.addEventListener("click", () => {
+        this.pacman.nextDirection = DIRECTION_BOTTOM
+      })
+    }
+    if (this.btnLeft) {
+      this.btnLeft.addEventListener("click", () => {
+        this.pacman.nextDirection = DIRECTION_LEFT
+      })
+    }
+    if (this.btnRight) {
+      this.btnRight.addEventListener("click", () => {
+        this.pacman.nextDirection = DIRECTION_RIGHT
+      })
+    }
   }
 }

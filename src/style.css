@@ -2,6 +2,7 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -11,18 +12,21 @@ body {
     display: flex;
     flex-direction: column;
     height: 100vh;
-    justify-content: center;
     align-items: center;
     padding-inline: 20px;
     font-size: 16px;
 }
 
-canvas {
+main {
     position: relative;
+}
+
+canvas {
     width: 100%;
     aspect-ratio: 1/1;
     max-width: 800px;
     border-radius: 5px;
+    margin-top: 10px;
 
 }
 
@@ -30,6 +34,12 @@ h1 {
     margin-block: 15px;
     font-size: clamp(16px, 4vw, 36px);
 
+}
+
+img, svg {
+    display: block;
+    width: 100%;
+    height: 100%;
 }
 
 .btn-menu {
@@ -45,6 +55,7 @@ h1 {
     background: #000000;
     cursor: pointer;
     animation: flash 1s infinite;
+    z-index: 10;
 }
 
 .info {
@@ -58,6 +69,48 @@ h1 {
 
 }
 
+.buttons {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.buttons span {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4rem;
+}
+
+.btn-ctrl {
+    background-color: #000;
+    border: 2px solid #613abd;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: border-color ease-in-out 250ms;
+}
+
+.btn-ctrl svg {
+    width: 2rem;
+    stroke-width: 2;
+    stroke: #613abd;
+    transition: all ease-in-out 250ms;
+}
+
+.btn-ctrl:hover {
+    border-color: #ffffff;
+}
+
+.btn-ctrl:hover svg, .btn-ctrl:active svg {
+    stroke: #ffffff;
+}
+
 @keyframes flash {
     0% {
         border-color: #ad9921;
@@ -67,5 +120,14 @@ h1 {
     }
     100% {
         border-color: #ad9921;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    body {
+        padding: 5px;
+    }
+    .buttons {
+        display: flex;
     }
 }
