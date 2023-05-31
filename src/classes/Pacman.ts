@@ -1,10 +1,7 @@
 import {
   blockSize,
   canvas,
-  DIRECTION_BOTTOM,
-  DIRECTION_LEFT,
-  DIRECTION_RIGHT,
-  DIRECTION_UP,
+  DIRECTION,
   gameContext,
   MAP,
   playSound,
@@ -63,21 +60,21 @@ export class Pacman {
   }
 
   /**
-   * If the direction is right, then move left. If the direction is up, then move down. If the
-   * direction is left, then move right. If the direction is down, then move up
+   * If the direction is right, then move left. If the direction is up, then move down and if the
+   * direction is left, then move right. If the direction is down, then move up.
    */
   moveBackwards(): void {
     switch (this.direction) {
-      case DIRECTION_RIGHT: // Right
+      case DIRECTION.RIGHT: // Right
         this.x -= this.speed
         break
-      case DIRECTION_UP: // Up
+      case DIRECTION.UP: // Up
         this.y += this.speed
         break
-      case DIRECTION_LEFT: // Left
+      case DIRECTION.LEFT: // Left
         this.x += this.speed
         break
-      case DIRECTION_BOTTOM: // Bottom
+      case DIRECTION.DOWN: // Bottom
         this.y -= this.speed
         break
     }
@@ -90,39 +87,31 @@ export class Pacman {
    */
   moveForwards(): void {
     switch (this.direction) {
-      case DIRECTION_RIGHT: // Right
+      case DIRECTION.RIGHT: // Right
         this.x += this.speed
         if (this.x >= canvas.width) {
           this.x = 0
         }
         break
-      case DIRECTION_UP: // Up
+      case DIRECTION.UP: // Up
         this.y -= this.speed
         if (this.y < 0) {
           this.y = canvas.height - this.height
         }
         break
-      case DIRECTION_LEFT: // Left
+      case DIRECTION.LEFT: // Left
         this.x -= this.speed
         if (this.x < 0) {
           this.x = canvas.width - this.width
         }
         break
-      case DIRECTION_BOTTOM: // Bottom
+      case DIRECTION.DOWN: // Bottom
         this.y += this.speed
         if (this.y >= canvas.height) {
           this.y = 0
         }
         break
     }
-  }
-
-  isInRange(ghost: Ghost): boolean {
-    let xDistance = Math.abs(ghost.getMapX() - this.getMapX())
-    let yDistance = Math.abs(ghost.getMapY() - this.getMapY())
-    return (
-      Math.sqrt(xDistance * xDistance + yDistance * yDistance) <= this.range
-    )
   }
 
   isEatingFood(): boolean {
@@ -169,7 +158,7 @@ export class Pacman {
 
   /**
    * If the player's map coordinates are the same as any of the ghosts' map coordinates, return true
-   * @param {Ghost[]} ghosts - Ghost[] - this is an array of Ghost objects.
+   * @param {Ghost[]} ghosts - Ghost[] this is an array of Ghost objects.
    * @returns A boolean value.
    */
   checkGhostCollision(ghosts: Ghost[]): boolean {
@@ -189,10 +178,6 @@ export class Pacman {
       }
     }
     return collided
-    /*   return ghosts.some(
-      (ghost) =>
-        ghost.getMapX() === this.getMapX() && ghost.getMapY() === this.getMapY()
-    )*/
   }
 
   /**
@@ -230,24 +215,8 @@ export class Pacman {
   }
 
   /**
-   * It returns the x coordinate of the right side of the player.
-   * @returns The right side of the player's x position.
-   */
-  getMapXRightSide(): number {
-    return Math.floor((this.x * 0.99 + blockSize) / blockSize)
-  }
-
-  /**
-   * It returns the y coordinate of the right side of the player
-   * @returns The y coordinate of the right side of the player.
-   */
-  getMapYRightSide(): number {
-    return Math.floor((this.y * 0.99 + blockSize) / blockSize)
-  }
-
-  /**
-   * If the current frame is equal to the total number of frames, set the current frame to 1,
-   * otherwise, add 1 to the current frame
+   * If the current frame is equal to the total amount frames, set the current frame to 1,
+   * otherwise, add 1 to the current frame.
    */
   changeAnimation(): void {
     this.currentFrame =
@@ -289,14 +258,14 @@ export class Pacman {
   reset(): void {
     this.x = blockSize
     this.y = blockSize
-    this.direction = DIRECTION_RIGHT
-    this.nextDirection = DIRECTION_RIGHT
+    this.direction = DIRECTION.RIGHT
+    this.nextDirection = DIRECTION.RIGHT
   }
 
   /**
    * We save the current state of the canvas, translate the canvas to the center of the Pacman, rotate
    * the canvas to the direction of the Pacman, translate the canvas back to the original position,
-   * draw the Pacman, and restore the canvas to its original state
+   * draw the Pacman, and restore the canvas to its original state.
    */
   draw(): void {
     gameContext.save()

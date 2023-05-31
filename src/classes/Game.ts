@@ -7,10 +7,7 @@ import {
   createDisplayText,
   createDisplayTitle,
   creatRect,
-  DIRECTION_BOTTOM,
-  DIRECTION_LEFT,
-  DIRECTION_RIGHT,
-  DIRECTION_UP,
+  DIRECTION,
   GameState,
   MAP,
   MAPS,
@@ -20,6 +17,7 @@ import {
   wait,
 } from "../utils"
 import { Pacman } from "./Pacman"
+import { Joystick } from "./Joystick"
 
 /**
  * Create Pacman Game
@@ -33,6 +31,7 @@ export class Game {
   private readonly maps: MAP[] = MAPS
   private gameLevel: number = 1
   private readonly pacman: Pacman = this.createPacman()
+  private joystick: Joystick = this.createJoystick()
   private readonly ghosts: Ghost[] = []
   private isRunning: boolean = false
   private gameInterval: number | null = null
@@ -43,14 +42,11 @@ export class Game {
   private readonly wallSpaceWidth: number = blockSize / 1.6
   private readonly wallOffset: number = (blockSize - this.wallSpaceWidth) / 2
   private btnMenu: HTMLButtonElement = document.querySelector(".btn-menu")!
-  private btnUp: HTMLButtonElement | null = document.querySelector("#UP")
-  private btnDown: HTMLButtonElement | null = document.querySelector("#DOWN")
-  private btnLeft: HTMLButtonElement | null = document.querySelector("#LEFT")
-  private btnRight: HTMLButtonElement | null = document.querySelector("#RIGHT")
   private isFrightened: boolean = false
 
   constructor() {
     this.createGhosts(this.ghostCount)
+    this.joystick.init()
   }
 
   /**
@@ -177,6 +173,7 @@ export class Game {
       }
       this.updateGhosts()
     }
+    this.pacman.nextDirection = this.joystick.getDirection()
   }
 
   private resumeGame() {
@@ -315,6 +312,12 @@ export class Game {
         this.createGhosts(this.ghostCount - this.ghosts.length)
       )
     }
+  }
+
+  private createJoystick(): Joystick {
+    return new Joystick(
+      document.querySelector("#joystick") as HTMLCanvasElement
+    )
   }
 
   /**
@@ -506,16 +509,18 @@ export class Game {
       let k = event.key
       if (k == "ArrowLeft" || k == "q") {
         // a left arrow or q
-        this.pacman.nextDirection = DIRECTION_LEFT
+        this.pacman.nextDirection = DIRECTION.LEFT
       } else if (k == "ArrowUp" || k == "z") {
         // up arrow or z
-        this.pacman.nextDirection = DIRECTION_UP
+        this.pacman.nextDirection = DIRECTION.UP
       } else if (k == "ArrowRight" || k == "d") {
         // right arrow or d
-        this.pacman.nextDirection = DIRECTION_RIGHT
+        this.pacman.nextDirection = DIRECTION.RIGHT
       } else if (k == "ArrowDown" || k == "s") {
         // bottom arrow or s
-        this.pacman.nextDirection = DIRECTION_BOTTOM
+        this.pacman.nextDirection = DIRECTION.DOWN
+      } else {
+        this.pacman.nextDirection = this.joystick.getDirection()
       }
       if (k == "Escape") {
         // escape key to pause the game
@@ -531,26 +536,5 @@ export class Game {
         this.init()
       }
     })
-    // BUTTONS CONTROL
-    if (this.btnUp) {
-      this.btnUp.addEventListener("click", () => {
-        this.pacman.nextDirection = DIRECTION_UP
-      })
-    }
-    if (this.btnDown) {
-      this.btnDown.addEventListener("click", () => {
-        this.pacman.nextDirection = DIRECTION_BOTTOM
-      })
-    }
-    if (this.btnLeft) {
-      this.btnLeft.addEventListener("click", () => {
-        this.pacman.nextDirection = DIRECTION_LEFT
-      })
-    }
-    if (this.btnRight) {
-      this.btnRight.addEventListener("click", () => {
-        this.pacman.nextDirection = DIRECTION_RIGHT
-      })
-    }
   }
 }

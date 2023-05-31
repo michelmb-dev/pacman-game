@@ -6,4 +6,3 @@ const game = new Game()
 
 // Initiate the game
 game.init()
-

@@ -1,10 +1,7 @@
 import {
   blockSize,
   canvas,
-  DIRECTION_BOTTOM,
-  DIRECTION_LEFT,
-  DIRECTION_RIGHT,
-  DIRECTION_UP,
+  DIRECTION,
   gameContext,
   MAP,
   randomTargetsForGhosts,
@@ -51,7 +48,7 @@ export class Ghost {
     this.width = width
     this.height = height
     this.speed = speed
-    this.direction = DIRECTION_RIGHT
+    this.direction = DIRECTION.RIGHT
     this.imageX = imageX
     this.imageY = imageY
     this.imageHeight = imageHeight
@@ -66,7 +63,7 @@ export class Ghost {
   }
 
   /**
-   * If the distance between the ghost and Pacman is less than or equal to the ghost's range, then
+   * If the distance between the ghost and Pacman is less than or equal to the ghost is range, then
    * return true
    * @param {Pacman} pacman - Pacman - the pacman object
    * @returns A boolean value.
@@ -81,7 +78,7 @@ export class Ghost {
 
   /**
    * It adds 1 to the randomTargetIndex, and then sets the randomTargetIndex to the remainder of the
-   * randomTargetIndex divided by 4
+   * randomTargetIndex divided by 4.
    */
   changeRandomDirection(): void {
     let addition = 1
@@ -92,7 +89,7 @@ export class Ghost {
   /**
    * If the ghost is in range of Pacman, it will move towards Pacman, otherwise it will move towards a
    * random target
-   * @param {Pacman} pacman - Pacman - the pacman object
+   * @param {Pacman} pacman - Pacman - the pacman object.
    */
   moveProcess(pacman: Pacman): void {
     if (this.frightened) {
@@ -127,7 +124,7 @@ export class Ghost {
   /**
    * If the direction is 4, then move the x coordinate to the left by the speed. If the direction is 3,
    * then move the y coordinate up by the speed. If the direction is 2, then move the x coordinate to
-   * the right by the speed. If the direction is 1, then move the y coordinate down by the speed
+   * the right by the speed. If the direction is 1, then move the y coordinate down by the speed.
    */
   moveBackwards(): void {
     switch (this.direction) {
@@ -147,8 +144,8 @@ export class Ghost {
   }
 
   /**
-   * If the direction is 4, then move right, if it's 3, then move up, if it's 2, then move left, and if
-   * it's 1, then move down.
+   * If the direction is 4, then move right, if it is 3, then move up, if it is 2, then move left, and if
+   * it is 1, then move down.
    */
   moveForwards(): void {
     switch (this.direction) {
@@ -203,7 +200,7 @@ export class Ghost {
   /**
    * If the player is in the same block as the ghost, the ghost will try to move in a direction that
    * will take it closer to the player. If it can't move in that direction, it will move in the
-   * direction it was already moving
+   * direction it is already moving
    * @returns The direction of the ghost.
    */
   changeDirectionIfPossible(): void {
@@ -218,15 +215,15 @@ export class Ghost {
     }
     if (
       this.getMapY() != this.getMapYRightSide() &&
-      (this.direction == DIRECTION_LEFT || this.direction == DIRECTION_RIGHT)
+      (this.direction == DIRECTION.LEFT || this.direction == DIRECTION.RIGHT)
     ) {
-      this.direction = DIRECTION_UP
+      this.direction = DIRECTION.UP
     }
     if (
       this.getMapX() != this.getMapXRightSide() &&
-      this.direction == DIRECTION_UP
+      this.direction == DIRECTION.UP
     ) {
-      this.direction = DIRECTION_LEFT
+      this.direction = DIRECTION.LEFT
     }
     this.moveForwards()
     if (this.checkCollisions()) {
@@ -260,13 +257,13 @@ export class Ghost {
       },
     ]
     while (queue.length > 0) {
-      let poped = queue.shift()
-      if (poped !== undefined)
-        if (poped.x == destX && poped.y == destY) {
-          return poped.moves[0]
+      let popped = queue.shift()
+      if (popped !== undefined)
+        if (popped.x == destX && popped.y == destY) {
+          return popped.moves[0]
         } else {
-          mp[poped.y][poped.x] = 1
-          let neighborList = this.addNeighbors(poped, mp)
+          mp[popped.y][popped.x] = 1
+          let neighborList = this.addNeighbors(popped, mp)
           for (let i = 0; i < neighborList.length; i++) {
             queue.push(neighborList[i])
           }
@@ -293,7 +290,7 @@ export class Ghost {
       mp[popped.y][popped.x - 1] != 1
     ) {
       let tempMoves = popped.moves.slice()
-      tempMoves.push(DIRECTION_LEFT)
+      tempMoves.push(DIRECTION.LEFT)
       queue.push({ x: popped.x - 1, y: popped.y, moves: tempMoves })
     }
     if (
@@ -302,7 +299,7 @@ export class Ghost {
       mp[popped.y][popped.x + 1] != 1
     ) {
       let tempMoves = popped.moves.slice()
-      tempMoves.push(DIRECTION_RIGHT)
+      tempMoves.push(DIRECTION.RIGHT)
       queue.push({ x: popped.x + 1, y: popped.y, moves: tempMoves })
     }
     if (
@@ -311,7 +308,7 @@ export class Ghost {
       mp[popped.y - 1][popped.x] != 1
     ) {
       let tempMoves = popped.moves.slice()
-      tempMoves.push(DIRECTION_UP)
+      tempMoves.push(DIRECTION.UP)
       queue.push({ x: popped.x, y: popped.y - 1, moves: tempMoves })
     }
     if (
@@ -320,7 +317,7 @@ export class Ghost {
       mp[popped.y + 1][popped.x] != 1
     ) {
       let tempMoves = popped.moves.slice()
-      tempMoves.push(DIRECTION_BOTTOM)
+      tempMoves.push(DIRECTION.DOWN)
       queue.push({ x: popped.x, y: popped.y + 1, moves: tempMoves })
     }
     return queue

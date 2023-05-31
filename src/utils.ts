@@ -1,8 +1,9 @@
-/* Direction of the pacman or the ghost. */
-export const DIRECTION_RIGHT = 4
-export const DIRECTION_UP = 3
-export const DIRECTION_LEFT = 2
-export const DIRECTION_BOTTOM = 1
+export enum DIRECTION {
+  UP = 3,
+  DOWN = 1,
+  LEFT = 2,
+  RIGHT = 4,
+}
 
 export const canvas: HTMLCanvasElement = document.querySelector("#canvas")!
 export const gameContext: CanvasRenderingContext2D = canvas.getContext("2d")!
