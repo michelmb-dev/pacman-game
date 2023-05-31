@@ -15,6 +15,7 @@ body {
     align-items: center;
     padding-inline: 20px;
     font-size: 16px;
+    overflow: hidden;
 }
 
 main {
