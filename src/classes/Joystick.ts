@@ -4,14 +4,14 @@ export class Joystick {
   private active: boolean = false
   public canvas: HTMLCanvasElement
   private ctx: CanvasRenderingContext2D
-  private strokeWidth = 2
-  private readonly joystickRadius
-  private readonly joystickX
-  private readonly joystickY
+  private strokeWidth: number = 2
+  private readonly joystickRadius: number
+  private readonly joystickX: number
+  private readonly joystickY: number
   private position: { x: number; y: number } = { x: 0, y: 0 }
-
-  private joystickColor = "rgb(97,58,189)"
-  private joystickStrokeColor = "rgb(140,140,140)"
+  private lastDirection: DIRECTION | null = null
+  private joystickColor: string = "rgb(97,58,189)"
+  private joystickStrokeColor: string = "rgb(140,140,140)"
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas
@@ -36,27 +36,32 @@ export class Joystick {
     this.draw()
   }
 
-  public getDirection(): DIRECTION {
+  public getDirection(): DIRECTION | null {
     const { x, y } = this.position
-    const angle = Math.atan2(y, x)
-    const angleDegrees = angle * (180 / Math.PI)
-
-    if (angleDegrees >= -45 && angleDegrees < 45) {
-      return DIRECTION.RIGHT
-    } else if (angleDegrees >= 45 && angleDegrees < 135) {
-      return DIRECTION.DOWN
-    } else if (angleDegrees >= 135 || angleDegrees < -135) {
-      return DIRECTION.LEFT
+    const angle: number = Math.atan2(y, x)
+    const angleDegrees: number = angle * (180 / Math.PI)
+    if (this.active) {
+      if (angleDegrees >= -135 && angleDegrees <= -45) {
+        return DIRECTION.UP
+      } else if (angleDegrees > -45 && angleDegrees < 45) {
+        return DIRECTION.RIGHT
+      } else if (angleDegrees >= 45 && angleDegrees <= 135) {
+        return DIRECTION.DOWN
+      } else if (angleDegrees >= 135 || angleDegrees < -135) {
+        return DIRECTION.LEFT
+      } else {
+        return null
+      }
     } else {
-      return DIRECTION.UP
+      return this.lastDirection
     }
   }
 
-  private handleTouchStart() {
+  private handleTouchStart(): void {
     this.active = true
   }
 
-  private handleTouchMove(event: TouchEvent) {
+  private handleTouchMove(event: TouchEvent): void {
     if (this.active) {
       const touch = event.touches[0]
       const rect = this.canvas.getBoundingClientRect()
@@ -64,29 +69,29 @@ export class Joystick {
       const touchY = touch.clientY - rect.top - this.joystickY
       const distance = Math.sqrt(touchX * touchX + touchY * touchY)
 
-      if (distance <= this.joystickRadius / 2) {
+      if (distance <= this.joystickRadius / 2.6) {
         this.position = { x: touchX, y: touchY }
       } else {
         const angle = Math.atan2(touchY, touchX)
-        const limitedX = Math.cos(angle) * (this.joystickRadius / 2)
-        const limitedY = Math.sin(angle) * (this.joystickRadius / 2)
+        const limitedX = Math.cos(angle) * (this.joystickRadius / 2.6)
+        const limitedY = Math.sin(angle) * (this.joystickRadius / 2.6)
         this.position = { x: limitedX, y: limitedY }
       }
-      console.log(this.getDirection())
       this.draw()
     }
   }
 
-  private handleTouchEnd() {
+  private handleTouchEnd(): void {
     this.active = false
     this.position = { x: 0, y: 0 }
     this.draw()
+    this.lastDirection = this.getDirection()
   }
 
   private drawPad(position: typeof this.position): void {
-    const padRadius = this.joystickRadius / 2
-    const padX = this.joystickX + position.x
-    const padY = this.joystickY + position.y
+    const padRadius: number = this.joystickRadius / 1.6
+    const padX: number = this.joystickX + position.x
+    const padY: number = this.joystickY + position.y
 
     this.ctx.beginPath()
     this.ctx.arc(padX, padY, padRadius, 0, 2 * Math.PI)
@@ -108,7 +113,7 @@ export class Joystick {
     this.ctx.stroke()
   }
 
-  private draw() {
+  private draw(): void {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
     this.drawJoystick()
     this.drawPad(this.position)

@@ -173,7 +173,9 @@ export class Game {
       }
       this.updateGhosts()
     }
-    this.pacman.nextDirection = this.joystick.getDirection()
+    if (this.joystick.getDirection() !== null) {
+      this.pacman.nextDirection = this.joystick.getDirection()!
+    }
   }
 
   private resumeGame() {

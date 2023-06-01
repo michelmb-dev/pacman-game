@@ -14,8 +14,8 @@ const pacmanFrames: HTMLImageElement = document.querySelector("#animation")!
  *  Create Pacman player
  */
 export class Pacman {
-  direction: number
-  nextDirection: number
+  direction: number | null
+  nextDirection: number | null
   frameCount: number
   currentFrame: number
   isRotating = false
@@ -34,8 +34,8 @@ export class Pacman {
     this.width = width
     this.height = height
     this.speed = speed
-    this.direction = 4
-    this.nextDirection = 4
+    this.direction = DIRECTION.RIGHT
+    this.nextDirection = DIRECTION.RIGHT
     this.frameCount = 7
     this.currentFrame = 1
     this.range = range
@@ -271,7 +271,7 @@ export class Pacman {
     gameContext.save()
     gameContext.translate(this.x + blockSize / 2, this.y + blockSize / 2)
     gameContext.rotate(
-      (this.direction * 90 * Math.PI) / 180 + this.rotationAngle
+      (this.direction! * 90 * Math.PI) / 180 + this.rotationAngle
     )
     gameContext.translate(-this.x - blockSize / 2, -this.y - blockSize / 2)
     gameContext.drawImage(
