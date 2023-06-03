@@ -12,6 +12,7 @@ import {
   MAP,
   MAPS,
   playSound,
+  preloadSound,
   resetMap,
   stopAllSounds,
   wait,
@@ -47,6 +48,12 @@ export class Game {
   constructor() {
     this.createGhosts(this.ghostCount)
     this.joystick.init()
+    preloadSound("sounds/music.mp3")
+    preloadSound("sounds/eat_ball.mp3")
+    preloadSound("sounds/eat_fruit.mp3")
+    preloadSound("sounds/eat_ghost.mp3")
+    preloadSound("sounds/frightened.mp3")
+    preloadSound("sounds/die.mp3")
   }
 
   /**

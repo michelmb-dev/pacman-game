@@ -172,6 +172,21 @@ export const createDisplayText = (text: string, color: string) => {
   gameContext.fillText(text, canvas.width / 2, canvas.height / 3)
 }
 
+const preloadedSounds: Map<string, HTMLAudioElement> = new Map()
+
+/**
+ *  Preload sound
+ *
+ * @param {string} audio
+ */
+export const preloadSound = (audio: string) => {
+  const sound = new Audio(audio)
+  sound.preload = "auto"
+  sound.load()
+
+  preloadedSounds.set(audio, sound)
+}
+
 const playingSounds: Map<string, HTMLAudioElement> = new Map()
 
 /**
